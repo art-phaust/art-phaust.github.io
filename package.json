@@ -1,15 +1,17 @@
 {
-  "name": "fxhash-boilerplate-webpack",
+  "name": "phaust-dotted-landscapes",
   "version": "1.0.0",
-  "description": "a boilerplate to create a generative token on fxhash",
+  "description": "Generative art evoking land, cloud and skyscapes",
   "main": "index.js",
-  "author": "fxhash",
+  "author": "ollyfreeman",
   "license": "MIT",
   "scripts": {
     "build": "webpack --config ./config/webpack.config.prod.js",
     "start": "webpack serve --config ./config/webpack.config.dev.js"
   },
-  "dependencies": {},
+  "dependencies": {
+    "p5": "^1.4.1"
+  },
   "devDependencies": {
     "adm-zip": "^0.5.9",
     "copy-webpack-plugin": "^9.0.1",
