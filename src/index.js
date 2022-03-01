@@ -44,7 +44,7 @@ const DO_ANIMATE = new URLSearchParams(window.location.search).get('animate') ==
 let frameIndex = 0;
 
 const CANVAS_WIDTH_RATIO = 1.778;
-const DIMENSION = Math.min(window.innerWidth, window.innerHeight); // TODO lower this for collection generation when testing
+const DIMENSION = Math.min(window.innerWidth, window.innerHeight); // 450;
 const CANVAS_HEIGHT = DIMENSION;
 const CANVAS_HEIGHT_RATIO = 0.9;
 const CANVAS_WIDTH = CANVAS_WIDTH_RATIO * DIMENSION;
@@ -343,20 +343,6 @@ const getUserConfig = () => ({
       width: 0.05,
     },
   },
-
-  snow: {
-    isOn: fxrand() < 0.1,
-    color: [0, 0, 100],
-    yIncrementalOffset: 0,
-    drawWeight: {
-      min: 1,
-      max: 2,
-    },
-    strips: {
-      vertexCount: 40,
-      yLength: 0.25,
-    },
-  },
 });
 
 let CANVAS;
@@ -390,8 +376,7 @@ function isInsideBounds(x, y) {
 
 function getLayers() {
   return CONFIG.user.layers.layers
-    .filter(l => !(l.isHidden ?? CONFIG.user.layers.defaults.isHidden))
-    .concat(CONFIG.user.snow.isOn ? [{ ...CONFIG.user.snow, isSnow: true }] : []);
+    .filter(l => !(l.isHidden ?? CONFIG.user.layers.defaults.isHidden));
 }
 
 function getIsInSun(x, y, isBackground) {
@@ -448,7 +433,6 @@ function drawLayers() {
     const drawWeight = layer.drawWeight ?? CONFIG.user.layers.defaults.drawWeight;
     const isBackground = layer.isBackground ?? CONFIG.user.layers.defaults.isBackground;
     const isInverted = layer.isInverted ?? CONFIG.user.layers.defaults.isInverted;
-    const isSnow = !!layer.isSnow;
     const stripXDensity = layer.strips.xDensity ?? CONFIG.user.layers.defaults.strips.xDensity;
     const stripXDistortionRange = layer.strips.xDistortionRange ?? CONFIG.user.layers.defaults.strips.xDistortionRange;
     const stripYLength = layer.strips.yLength ?? CONFIG.user.layers.defaults.strips.yLength;
@@ -493,41 +477,30 @@ function drawLayers() {
       stripX += stripWidth;
     });
   
-    const fadedHue =
+    const hue =
       Math.round(((fgColor[0] - (((layers.length - 1) - layerIndex) * (1 - (hueMinRatio ?? 1)) * 360 / layers.length - 1)) + 360) % 360);
-    // const colorObject = !isSnow
-    //   ? p5.color(`hsl(${fadedHue}, ${fgColor[1]}%, ${fgColor[2]}%)`)
-    //   : p5.color('hsl(0, 0%, 100%)');
-    const hue = !isSnow ? fadedHue : 0;
-    const saturation = !isSnow ? fgColor[1] : 0;
-    const lightness = !isSnow ? fgColor[2] : 100;
+    const saturation = fgColor[1];
+    const lightness = fgColor[2];
 
     for (let i = 0; i < strips.length; i++) {
       const verticesForStrip = [];
       let prevIsInSun = getIsInSun(strips[i][0].x, strips[i][0].y, isBackground);
-      // let fillColor = [p5.hue(colorObject), p5.saturation(colorObject), p5.lightness(colorObject), prevIsInSun ? 0 : p5.alpha(colorObject)];
       let fillColor = [hue, saturation, lightness, prevIsInSun ? 0 : 1];
       for (let j = 0; j < stripVertexCount; j++) {
         const { x, y, doNotPlot } = strips[i][j];
         const isInSun = getIsInSun(x, y, isBackground);
         if (!prevIsInSun && isInSun) {
-          // fillColor = [p5.hue(colorObject), p5.saturation(colorObject), p5.lightness(colorObject), 0];
           fillColor = [hue, saturation, lightness, 0];
         } else if (prevIsInSun && !isInSun) {
-          // fillColor = [p5.hue(colorObject), p5.saturation(colorObject), p5.lightness(colorObject)];
           fillColor = [hue, saturation, lightness];
         }
         prevIsInSun = isInSun;
 
-        const shapeDimension = drawWeight * (!isSnow
-          ? 1
-          : randomInt(CONFIG.user.snow.drawWeight.min, CONFIG.user.snow.drawWeight.max)
-        );
         verticesForStrip.push({
           x, y,
           color: fillColor,
           weight: !(doNotPlot || getIsTapered(i, j, strips.length, stripVertexCount, xStart, xEnd, xTaperLength))
-            ? shapeDimension
+            ? drawWeight
             : 0,
         });
       }
