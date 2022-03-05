@@ -1,81 +1,62 @@
-function chooseByProbability(list) {
-  let cumulativeProbability = 0;
-  const rand = fxrand();
-  return list
-    .map((listElement) => {
-      cumulativeProbability += (listElement.probability ?? 1);
-      return {
-        ...listElement,
-        cumulativeProbability,
-      }
-    })
-    .find(o => rand < o.cumulativeProbability)
-}
-
-function randomInt(min, max) { // from min (inclusive) to max (inclusive)
-  return min + Math.floor(fxrand() * ((max - min) + 1));
-}
-
-const CANVAS_WIDTH_RATIO = 1.778;
-export const DIMENSION = Math.min(window.innerWidth, window.innerHeight); // 450; // do not export
-export const CANVAS_HEIGHT = DIMENSION;
-const CANVAS_HEIGHT_RATIO = 0.9;
-export const CANVAS_WIDTH = CANVAS_WIDTH_RATIO * DIMENSION; // do not export
-
-export const STRIP_VERTEX_COUNT = 200;
+import { randomInt, chooseByProbability, randomFloat } from './utils';
 
 const PALLETES = [
-  { // Jamison
+  {
+    name: 'Jamison',
     bgColor: [218, 80, 98],
     colors: [
-      { fg: [213, 72, 62], hues: [0.9, 0.8] },
-      { fg: [222, 99, 54], hues: [0.9, 0.8] },
-      { fg: [279, 30, 55], hues: [0.8, 0.5] },
-      { fg: [296, 70, 66], hues: [0.8, 0.6] },
+      { fg: [213, 72, 62], hues: [0.9, 0.8], name: 'Blue' },
+      { fg: [222, 99, 54], hues: [0.9, 0.8], name: 'Indigo' },
+      { fg: [279, 30, 55], hues: [0.8, 0.5], name: 'Purple' },
+      { fg: [296, 70, 66], hues: [0.8, 0.6], name: 'Pink' },
     ],
     hasMono: true,
     probability: 0.22,
   },
-  { // Rocky
+  {
+    name: 'Rocky',
     bgColor: [216, 20, 97],
     colors: [
-      { fg: [20, 63, 55], hues: [0.9, 0.4] },
-      { fg: [219, 30, 55], hues: [0.8, 0.6] },
-      { fg: [253, 28, 55], hues: [0.8, 0.6] },
-      { fg: [346, 80, 47], hues: [0.8, 0.6] },
+      { fg: [20, 63, 55], hues: [0.9, 0.4], name: 'Orange' },
+      { fg: [219, 30, 55], hues: [0.8, 0.6], name: 'Blue' },
+      { fg: [253, 28, 55], hues: [0.8, 0.6], name: 'Purple' },
+      { fg: [346, 80, 47], hues: [0.8, 0.6], name: 'Red' },
     ],
     hasMono: true,
     probability: 0.22,
   },
-  { // Ural
+  {
+    name: 'Carpathian',
     bgColor: [30, 50, 97],
     colors: [
-      { fg: [32, 99, 68], hues: [0.9, 0.8] },
-      { fg: [118, 66, 26], hues: [0.8, 0.2] },
-      { fg: [213, 55, 45], hues: [0.9, 0.8] },
-      { fg: [215, 19, 41], hues: [0.8, 0.6] },
+      { fg: [32, 99, 68], hues: [0.9, 0.8], name: 'Gold' },
+      { fg: [118, 66, 26], hues: [0.8, 0.2], name: 'Green' },
+      { fg: [213, 55, 45], hues: [0.9, 0.8], name: 'Blue' },
+      { fg: [215, 19, 41], hues: [0.8, 0.6], name: 'Slate' },
     ],
     hasMono: true,
     probability: 0.22,
   },
-  { // Vinicunca
+  {
+    name: 'Vinicunca',
     bgColor: [4, 70, 98],
     colors: [
-      { fg: [3, 99, 68], hues: [0.9, 0.6] },
-      { fg: [185, 48, 45], hues: [0.9, 0.8] },
-      { fg: [348, 100, 82], hues: [0.9, 0.6] },
-      { fg: [350, 40, 50], hues: [0.8, 0.6] },
+      { fg: [3, 99, 68], hues: [0.9, 0.6], name: 'Coral' },
+      { fg: [185, 48, 45], hues: [0.9, 0.8], name: 'Teal' },
+      { fg: [348, 100, 82], hues: [0.9, 0.6], name: 'Pink' },
+      { fg: [350, 40, 50], hues: [0.8, 0.6], name: 'Red' },
     ],
     probability: 0.22,
   },
 
-  { // Arctic
+  {
+    name: 'Arctic',
     bgColor: [203, 56, 8],
     colors: [
-      { fg: [172, 90, 55] },
-      { fg: [186, 92, 40] },
-      { fg: [236, 100, 65] },
-      { fg: [293, 55, 68] },
+      { fg: [236, 100, 65], name: 'Purple' },
+      { fg: [186, 92, 40], name: 'Cyan' },
+      { fg: [293, 55, 68], name: 'Pink' },
+      { fg: [172, 90, 55], name: 'Teal' },
     ],
     hasMono: false,
     probability: 0.08,
@@ -83,25 +64,28 @@ const PALLETES = [
 
   { // Duotones
     colors: [
-      { fg: [32, 99, 68], bg: [346, 80, 47] },
-      { fg: [236, 100, 65], bg: [32, 99, 68] },
-      { fg: [172, 90, 55], bg: [236, 100, 65] },
-      { fg: [346, 80, 47], bg: [172, 90, 55] },
+      { fg: [32, 99, 68], bg: [346, 80, 47], name: 'Rocky Red and Carpathian Gold' },
+      { fg: [236, 100, 65], bg: [32, 99, 68], name: 'Carpathian Gold and Arctic Purple' },
+      { fg: [346, 80, 47], bg: [172, 90, 55], name: 'Arctic Teal and Rocky Red' },
+      { fg: [172, 90, 55], bg: [236, 100, 65], name: 'Arctic Purple and Arctic Teal' },
     ],
     hasMono: false,
     probability: 0.04,
   },
 ];
 
-export const getUserConfig = () => {
-  const USER_CONFIG = {
-    canvas: {
-      width: 1,
-    },
+const CANVAS_WIDTH_RATIO = 1.778; // TODO move this
 
+const getUserConfig = (resolution) => {
+  let userConfig = {};
+  setUserConfigDimensions(userConfig, resolution);
+
+  userConfig = {
+    canvas: {
+      ...userConfig.canvas,
+    },
     drawing: {
-      heightRatio: CANVAS_HEIGHT_RATIO,
-      widthRatio: CANVAS_WIDTH_RATIO + CANVAS_HEIGHT_RATIO - 1,
+      ...userConfig.drawing,
       getColors: () => {
         const pallete = chooseByProbability(PALLETES);
 
@@ -114,21 +98,24 @@ export const getUserConfig = () => {
           return {
             fg: [0, 0, 0],
             bg: pallete.bgColor,
+            name: `${pallete.name} Mono`,
           };
         }
         const color = pallete.colors[Math.floor(fxrand() * pallete.colors.length)];
         const hueRand = fxrand();
-        const hueMinRatio = color.hues != null
+        const hueIndex = color.hues != null
           ? hueRand < hue1Probaility
-            ? color.hues[0]
+            ? 0
             : hueRand < (hue1Probaility + hue2Probaility)
-              ? color.hues[1]
-              : 1
-          : 1;
+              ? 1
+              : -1
+          : -1;
         return {
           fg: color.fg,
           bg: color.bg ?? pallete.bgColor,
-          hueMinRatio,
+          hueMinRatio: hueIndex === -1 ? 1 : color.hues[hueIndex],
+          name: pallete.name != null ? `${pallete.name} ${color.name}` : color.name,
+          hueIndex,
         };
       },
     },
@@ -156,66 +143,65 @@ export const getUserConfig = () => {
         // Base Layer
         {
           strips: {
-            getYLength: () => USER_CONFIG.layers.yLengthBase,
+            getYLength: () => userConfig.layers.yLengthBase,
           },
-          getYOffset: () => USER_CONFIG.layers.yOffsetBase,
+          getYOffset: () => userConfig.layers.yOffsetBase,
         },
         {
           strips: {
-            getYLength: () => USER_CONFIG.layers.yLengthBase,
+            getYLength: () => userConfig.layers.yLengthBase,
           },
-          getYOffset: () => USER_CONFIG.layers.yOffsetBase,
+          getYOffset: () => userConfig.layers.yOffsetBase,
         },
 
         // Partial A
         {
           strips: {
-            getYLength: () => USER_CONFIG.layers.yLengthBase * 0.5,
+            getYLength: () => userConfig.layers.yLengthBase * 0.5,
           },
-          getYOffset: () => USER_CONFIG.layers.yOffsetBase + 0.05,
+          getYOffset: () => userConfig.layers.yOffsetBase + 0.05,
           xStart: randomInt(1, 6) * 0.2,
         },
         {
           strips: {
-            getYLength: () => USER_CONFIG.layers.yLengthBase * 0.5,
+            getYLength: () => userConfig.layers.yLengthBase * 0.5,
           },
-          getYOffset: () => USER_CONFIG.layers.yOffsetBase + 0.05,
+          getYOffset: () => userConfig.layers.yOffsetBase + 0.05,
           xStart: randomInt(1, 6) * 0.2,
-          getIsHidden: () => USER_CONFIG.layers.hasDoublePartial,
+          getIsHidden: () => userConfig.layers.hasDoublePartial,
         },
 
         // Partial B
         {
           strips: {
-            getYLength: () => USER_CONFIG.layers.yLengthBase * 0.5,
+            getYLength: () => userConfig.layers.yLengthBase * 0.5,
           },
-          getYOffset: () => USER_CONFIG.layers.yOffsetBase + 0.05,
+          getYOffset: () => userConfig.layers.yOffsetBase + 0.05,
           xEnd: randomInt(1, 4) * 0.3,
         },
         {
           strips: {
-            getYLength: () => USER_CONFIG.layers.yLengthBase * 0.5,
+            getYLength: () => userConfig.layers.yLengthBase * 0.5,
           },
-          getYOffset: () => USER_CONFIG.layers.yOffsetBase + 0.05,
+          getYOffset: () => userConfig.layers.yOffsetBase + 0.05,
           xEnd: randomInt(1, 4) * 0.3,
-          getIsHidden: () => USER_CONFIG.layers.hasDoublePartial,
+          getIsHidden: () => userConfig.layers.hasDoublePartial,
         },
       ],
 
-      // custom fields used for w100
       hasDoublePartial: fxrand() < 0.75,
+      stripVertexCount: 200,
       yLengthBase: randomInt(1, 3) * 0.2, 
       yOffsetBase: randomInt(2, 5) * 0.1,
 
       defaults: {
-        drawWeight: 0.001 * DIMENSION,
+        drawWeight: 0.001,
         isBackground: false,
         isHidden: false,
         isInverted: false,
         strips: {
-          vertexCount: STRIP_VERTEX_COUNT,
-          xDensity: randomInt(2, 5) * 0.2 * CANVAS_WIDTH_RATIO,
-          xDistortionRange: randomInt(1, 5) * 0.3 * CANVAS_WIDTH_RATIO,
+          xDensity: randomInt(2, 5) * 300,
+          xDistortionRange: randomInt(1, 5) * 0.3,
           yLength: 1,
           yLengthRange: 0.3,
         },
@@ -223,14 +209,15 @@ export const getUserConfig = () => {
         xTaperLength: 0.33 / CANVAS_WIDTH_RATIO,
         xStart: 0,
         xEnd: 1,
-        getYIncrementalOffset: () => (5 + (randomInt(1, 3) * 3)) * 0.001 * USER_CONFIG.layers.yLengthBase,
+        getYIncrementalOffset: () => (5 + (randomInt(1, 3) * 3)) * 0.001 * userConfig.layers.yLengthBase,
         yOffset: 0,
       },
     },
 
     getBreaks: () => {	
       const breakTypes = [	
-        { // diptych	
+        {
+          name: 'Diptych',
           probability: 0.10,	
           breaks: {	
             horizontal: [],	
@@ -239,7 +226,8 @@ export const getUserConfig = () => {
             ]	
           },	
         },	
-        { // triptych	
+        {
+          name: 'Triptych',
           probability: 0.12,	
           breaks: {	
             horizontal: [],	
@@ -249,7 +237,8 @@ export const getUserConfig = () => {
             ]	
           },	
         },	
-        { // singleVerticalOne	
+        {
+          name: 'Vertical Left',
           probability: 0.08,	
           breaks: {	
             horizontal: [],	
@@ -258,7 +247,8 @@ export const getUserConfig = () => {
             ]	
           },	
         },	
-        { // singleVerticalTwo	
+        {
+          name: 'Vertical Right',	
           probability: 0.08,	
           breaks: {	
             horizontal: [],	
@@ -267,7 +257,8 @@ export const getUserConfig = () => {
             ]	
           },	
         },	
-        { // singleHorizontal	
+        {
+          name: 'Horizontal',
           probability: 0.08,	
           breaks: {	
             horizontal: [	
@@ -278,6 +269,7 @@ export const getUserConfig = () => {
         },	
         { // default	
           // do not specify probability for the default case	
+          name: 'None',
           breaks: {	
             horizontal: [],	
             vertical: [],	
@@ -289,36 +281,109 @@ export const getUserConfig = () => {
 
     rain: {
       isOn: fxrand() < 0.2,
-      alphaRatio: 1,
       angle: fxrand() < 0.5
         ? randomInt(1, 3) * 20
         : randomInt(1, 4) * -15,
-      gap: 10,
-      length: {
+      gap: 0.015,
+      length: { // multiplier of weight
         min: 5,
         max: 10,
       },
       yCutoff: 0.4,
       yCutoffRange: 0.1,
       weight: {
-        min: 0.2,
-        max: 0.6,
+        min: 0.0003,
+        max: 0.0009,
       },
     },
 
     sun: {
-      isOn: fxrand() < 0.3,	
-      minRadius: 0.08 / CANVAS_WIDTH_RATIO,	
-      maxRadius: 0.20 / CANVAS_WIDTH_RATIO,
+      isOn: fxrand() < 0.3,
+      radius: randomFloat(0.08, 0.2),
       halo: {
-        count: (randomInt(0, 3) * 2) - 1,
+        count: Math.max(0, (randomInt(0, 3) * 2) - 1),
         gap: 0.2,
         width: 0.05,
       },
+      center: {
+        xRatio: fxrand(),
+        yRatio: fxrand(),
+      }
     },
   };
 
-  return USER_CONFIG;
+  return userConfig;
+};
+
+export const setUserConfigDimensions = (userConfig, resolution) => {
+  const DIMENSION = resolution != null
+    ? resolution / CANVAS_WIDTH_RATIO
+    : ((window.innerWidth / window.innerHeight > CANVAS_WIDTH_RATIO)
+      ? window.innerHeight
+      : (window.innerWidth / CANVAS_WIDTH_RATIO)
+    );
+  const CANVAS_HEIGHT = Math.round(DIMENSION);
+  const CANVAS_HEIGHT_RATIO = 0.9;
+  const CANVAS_WIDTH = Math.round(CANVAS_WIDTH_RATIO * DIMENSION);
+
+  userConfig.canvas = {
+    ...userConfig.canvas,
+    dimension: DIMENSION,
+    height: CANVAS_HEIGHT,
+    width: CANVAS_WIDTH,
+    heightRatio: 1,
+    widthRatio: CANVAS_WIDTH_RATIO,
+    aspectRatio: CANVAS_WIDTH_RATIO / 1,
+  };
+
+  const heightRatio = CANVAS_HEIGHT_RATIO;
+  const widthRatio = CANVAS_WIDTH_RATIO + CANVAS_HEIGHT_RATIO - 1;
+
+  userConfig.drawing = {
+    ...userConfig.drawing,
+    heightRatio,
+    widthRatio,
+    aspectRatio: widthRatio / heightRatio,
+  };
+};
+
+export const setDerivedConfig = (config) => {
+  const BORDER_Y_RATIO = (1 - config.user.drawing.heightRatio) / 2;
+  const DRAWING_HEIGHT = config.user.drawing.heightRatio * config.user.canvas.height;
+  const DRAWING_WIDTH = config.user.drawing.widthRatio * config.user.canvas.dimension;
+  
+  config.derived.drawing = {
+    height: DRAWING_HEIGHT,
+    width: config.user.drawing.widthRatio * config.user.canvas.dimension,
+  
+    topLeftX: (config.user.canvas.width - DRAWING_WIDTH) / 2,
+    bottomRightX: config.user.canvas.width - (config.user.canvas.width - DRAWING_WIDTH) / 2,
+    topLeftY: config.user.canvas.height * BORDER_Y_RATIO,
+    bottomRightY: config.user.canvas.height * (1 - BORDER_Y_RATIO),
+  };
+  
+  const NON_BACKGROUND_MIN_OFFSET = Math.min(...config.user.layers.layers
+    .filter(l => !(l.isBackground ?? config.user.layers.defaults.isBackground))
+    .map(l => l.yOffset ?? config.user.layers.defaults.yOffset)
+  );
+  config.derived.sun = {
+    radius: config.user.sun.radius,
+    center: {
+      x: config.user.sun.center.xRatio,
+      y: config.user.sun.center.yRatio * NON_BACKGROUND_MIN_OFFSET,
+    },
+  };
+};
+
+export const getConfig = (resolution) => {
+  const config = {
+    user: createConfig(getUserConfig(resolution)),
+    derived: {},
+  };
+
+  setDerivedConfig(config);
+
+  return config;
 };
 
 export function createConfig(config) {
@@ -326,17 +391,33 @@ export function createConfig(config) {
   if (Array.isArray(config)) return config.map(el => createConfig(el));
   return Object.keys(config).reduce(
     (acc, key) => {
-      const valueType = typeof config[key];
-      const rawValue = config[key];
-      switch (valueType) {
+      switch (typeof config[key]) {
         case 'object':
-          acc[key] = createConfig(rawValue);
+          acc[key] = createConfig(config[key]);
           break;
         case 'function':
-          acc[`${key.charAt(3).toLowerCase()}${key.slice(4)}`] = rawValue();
+          acc[`${key.charAt(3).toLowerCase()}${key.slice(4)}`] = config[key]();
           break;
         default:
-          acc[key] = rawValue;
+          acc[key] = config[key];
+      }
+      return acc;
+    },
+    {},
+  );
+}
+
+export function copyConfig(config) {
+  if (typeof config !== 'object') return config;
+  if (Array.isArray(config)) return config.map(el => copyConfig(el));
+  return Object.keys(config).reduce(
+    (acc, key) => {
+      switch (typeof config[key]) {
+        case 'object':
+          acc[key] = copyConfig(config[key]);
+          break;
+        default:
+          acc[key] = config[key];
       }
       return acc;
     },

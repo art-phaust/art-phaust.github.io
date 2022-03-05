@@ -1,7 +1,7 @@
 {
-  "name": "phaust-dotted-landscapes",
+  "name": "phaust-pointila",
   "version": "1.0.0",
-  "description": "Generative art evoking land, cloud and skyscapes",
+  "description": "Generative art project evoking land, cloud and skyscapes",
   "main": "index.js",
   "author": "ollyfreeman",
   "license": "MIT",
