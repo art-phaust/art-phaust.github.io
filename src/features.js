@@ -1,3 +1,5 @@
+import getName from './markov';
+
 function getPalette(config) {
   return config.user.drawing.colors.name;
 }
@@ -72,7 +74,7 @@ export function getFeatures(config) {
     'Prominence': getProminence(config),
     'Sun': getSun(config),
     'Rain': getRain(config),
-    // Name ?
+    'Name': getName(),
     'Breaks': getBreaks(config),
     'Density': getDensity(config),
     'Distortion': getDistortion(config),
