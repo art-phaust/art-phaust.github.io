@@ -326,7 +326,7 @@ const sketch = ({ doNotAnimate, doDebug, resolution, onInit, onDone }) => (p5) =
 
   p5.keyPressed = function () {
     if (p5.keyCode === 83) { // letter s
-      p5.saveCanvas(`pointilla-${config.user.canvas.dimension}.png`);
+      p5.saveCanvas(`pointilla-${config.user.canvas.width}.png`);
     } else if (p5.keyCode === 75) { // letter k
       const resolution = 4000;
       const heightResolution = Math.ceil(resolution / config.user.canvas.widthRatio);
