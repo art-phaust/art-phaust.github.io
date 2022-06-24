@@ -1,0 +1,12 @@
+<!doctype html><html><head><title>Pointila | Phaust</title><meta charset="utf-8"><script src="https://cdn.jsdelivr.net/npm/p5@1.0.0/lib/p5.js"></script><script>// remove when not developing
+  function genTokenData(projectNum) {
+  let data = {};
+  let hash = "0x";
+  for (var i = 0; i < 64; i++) {
+    hash += Math.floor(Math.random() * 16).toString(16);
+  }
+  data.hash = hash;
+  data.tokenId = (projectNum * 1000000 + Math.floor(Math.random() * 1000)).toString();
+  return data;
+}
+let tokenData = genTokenData(123);tokenData = {hash: '0x6326c817da316d771c59d4bfd8b1c5aed93ee396ecdae7561605fa0393c78a04', tokenId: '123000574'}</script></head><body><script defer="defer" src="./bundle.js"></script></body></html>
