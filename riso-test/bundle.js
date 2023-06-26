@@ -1,83 +1,184 @@
-let seed = Math.floor(Math.random() * 1000000000000000);
+// TODO remove for release
+const exportLayers = new URLSearchParams(window.location.search).get('exportlayers');
+const sizeQueryParam = parseInt(new URLSearchParams(window.location.search).get('size') ?? 0, 10);
+const seedParam = parseInt(new URLSearchParams(window.location.search).get('seed') ?? 0, 10);
+const dotDensity = parseInt(new URLSearchParams(window.location.search).get('tiledensity') ?? 0, 10);
+
+let seed = seedParam || Math.floor(Math.random() * 1000000000000000);
 const originalSeed = seed;
 console.log('seed', originalSeed);
 
-const sizeQueryParam = parseInt(new URLSearchParams(window.location.search).get('size') ?? 0, 10); // TODO remove for release
-
-// PALETTE
 const PALETTES = [
   {
     name: 'Breaking News',
-    background: [35, 25, 88],
-    colors: [[340, 8, 15], [5, 9, 28], [17, 7, 38], [35, 28, 80], [0, 0, 98]],
-    accentColor: [10, 90, 52],
-    size: 'MEDIUM',
+    background: [32, 25, 88],
+    colors: [[0, 0, 0, 85], [0, 0, 0 , 65], [0, 0, 0 , 50], [0, 0, 100, 80]],
+    accentColor: [18, 100, 59, 100],
   },
   {
     name: 'Spectrum',
-    background: [35, 25, 88],
+    background: [32, 25, 88],
     colors: [[354, 85, 63], [337, 100, 63], [183, 100, 32], [41, 100, 53], [18, 100, 59], [222, 53, 42]],
-    size: 'LARGE',
   },
   {
     name: 'Bubblegum Sun',
-    background: [35, 25, 88],
+    background: [32, 25, 88],
     colors: [[222, 53, 42], [41, 100, 53], [324, 91, 75]],
-    size: 'MEDIUM',
   },
   {
-    name: 'Neon Bar',
-    background: [35, 25, 88],
+    name: 'Neon Nights',
+    background: [32, 25, 88],
     colors: [[0, 0, 0], [202, 100, 37], [193, 72, 63], [326, 100, 64]],
-    size: 'MEDIUM',
   },
-  {
-    name: 'Blush',
-    background: [35, 25, 88],
-    colors: [[353, 49, 54], [352, 100, 65], [358, 100, 78], [357, 59, 88]],
-    size: 'MEDIUM',
-  },
-  {
-    name: 'Retro',
-    background: [35, 25, 88],
-    colors: [[353, 49, 54], [352, 100, 65], [183, 100, 27], [169, 44, 57]],
-    size: 'MEDIUM',
-  },
-  {
-    name: 'Summer Haze',
-    background: [35, 25, 88],
-    colors: [[41, 100, 53], [352, 100, 65], [358, 100, 78], [264, 49, 65]],
-    size: 'MEDIUM',
-  }, 
   {
     name: 'Cyano',
-    background: [35, 25, 88],
+    background: [32, 25, 88],
     colors: [[193, 72, 63], [202, 100, 37], [222, 53, 42], [358, 100, 78]],
-    size: 'MEDIUM',
-  },
-  {
-    name: 'Tigerbalm',
-    background: [35, 25, 88],
-    colors: [[18, 100, 59], [76, 19, 37], [153, 100, 33], [102, 44, 49]],
-    size: 'MEDIUM',
   },
   {
     name: 'Kingfisher',
-    background: [35, 25, 88],
+    background: [32, 25, 88],
     colors: [[20, 54, 48], [183, 100, 27], [183, 100, 32], [357, 59, 88]],
-    size: 'MEDIUM',
   },
   {
     name: 'Ficus',
-    background: [35, 25, 88],
+    background: [32, 25, 88],
     colors: [[76, 19, 37], [36, 27, 55], [24, 64, 45], [210, 1, 54]],
-    size: 'MEDIUM',
   },
   {
-    name: 'Blackprint',
-    background: [[35, 25, 88]],
-    colors: [[0, 0, 0]],
-    size: 'SMALL',
+    name: 'Lessons',
+    background: [32, 25, 88],
+    colors: [[18, 100, 59], [326, 100, 64], [261, 30, 51]],
+  },
+  {
+    name: 'Seaside',
+    background: [32, 25, 88],
+    colors: [[221, 38, 39], [352, 100, 65], [200, 72, 63], [18, 100, 59]],
+  },
+  {
+    name: 'Metal',
+    background: [[32, 25, 88]],
+    colors: [[20, 54, 48], [353, 49, 54], [36, 27, 55], [221, 38, 39]],
+  },
+  {
+    name: 'Lilac',
+    background: [[32, 25, 88]],
+    colors: [[261, 30, 51], [336, 53, 81], [200, 72, 63]],
+  },
+  {
+    name: 'Fluoro',
+    background: [[32, 25, 88]],
+    colors: [[178, 52, 68], [41, 100, 53], [326, 100, 64], [264, 49, 65]],
+  },
+  {
+    name: 'Blush',
+    background: [32, 25, 88],
+    colors: [[353, 49, 54], [352, 100, 65], [358, 100, 78], [357, 59, 88]],
+  },
+  {
+    name: 'Ocean',
+    background: [[32, 25, 88]],
+    colors: [[221, 38, 39], [222, 53, 42], [202, 100, 37], [200, 72, 63]],
+  },
+  {
+    name: 'Amethyst',
+    background: [[32, 25, 88]],
+    colors: [[287, 48, 64], [264, 49, 65], [261, 30, 51]],
+  },
+  {
+    name: 'DuoA',
+    background: [[32, 25, 88]],
+    colors: [[261, 30, 51, 90], [200, 72, 63, 90]],
+  },
+  {
+    name: 'DuoB',
+    background: [[32, 25, 88]],
+    colors: [[326, 100, 64, 90], [183, 100, 27, 90]],
+  },
+  {
+    name: 'DuoC',
+    background: [[32, 25, 88]],
+    colors: [[324, 91, 75, 90], [202, 100, 37, 90]],
+  },
+  {
+    name: 'Monochrome',
+    background: [[32, 25, 88]],
+    colors: [chooseFromList([[0, 0, 0], [41, 100, 53], [358, 100, 78], [264, 49, 65], [183, 100, 27], [222, 53, 42]])],
+  },
+  {
+    name: 'Blackboard',
+    background: [[225, 8, 19]],
+    colors: [chooseFromList([[0, 0, 100, 100], [36, 27, 55, 100]])],
+  },
+  {
+    name: 'Pastel Greyscale',
+    background:  chooseFromList([[32, 25, 88], [282, 31, 70], [359, 48, 75], [72, 23, 78], [223, 44, 85]]),
+    colors: [[0, 0, 0, 85], [0, 0, 0 , 65], [0, 0, 0 , 50], [0, 0, 100, 80]],
+  },
+  {
+    name: 'Bold Greyscale',
+    background:  chooseFromList([[225, 8, 19], [36, 100, 44], [214, 68, 40], [340, 100, 61], [359, 65, 43]]),
+    colors: [[0, 0, 0, 85], [0, 0, 0 , 65], [0, 0, 0 , 50], [0, 0, 100, 80]],
+  },
+  {
+    name: 'Blue Overprint',
+    background: [[223, 44, 85]],
+    colors: [[202, 100, 37], [200, 72, 63], [0, 0, 100, 90]],
+  },
+  {
+    name: 'Lilac Overprint',
+    background: [[282, 31, 70]],
+    colors: [[287, 48, 64], [264, 49, 65], [261, 30, 51], [0, 0, 100, 90]],
+  },
+  {
+    name: 'Pink Overprint',
+    background: [[359, 48, 75]],
+    colors: [[336, 53, 81], [353, 49, 54], [0, 0, 100, 90]],
+  },
+  {
+    name: 'WatercolourA',
+    background: [[0, 0, 92]],
+    colors: [[261, 30, 51, 40], [41, 100, 53, 40], [200, 72, 63, 40]],
+  },
+  {
+    name: 'WatercolourB',
+    background: [[0, 0, 92]],
+    colors: [[261, 30, 51, 40], [41, 100, 53, 40], [200, 72, 63, 40], [354, 85, 63, 40], [336, 53, 81], [221, 38, 39, 40]],
+  },
+  {
+    name: 'WatercolourC',
+    background: [[0, 0, 92]],
+    colors: [[178, 52, 68, 40], [222, 53, 42, 40], [354, 85, 63, 40]],
+  },
+  {
+    name: 'WatercolourD',
+    background: [[0, 0, 92]],
+    colors: [[358, 100, 78, 40], [3, 100, 68, 40], [352, 100, 65, 40], [357, 59, 88, 60], [200, 72, 63, 40]],
+  },
+  {
+    name: 'WatercolourE',
+    background: [[0, 0, 92]],
+    colors: [[324, 91, 75, 40], [41, 100, 53, 40], [183, 100, 27, 40]],
+  },
+  {
+    name: 'WatercolourF',
+    background: [[0, 0, 92]],
+    colors: [[20, 54, 48, 40], [0, 0, 0, 40], [76, 19, 37, 40]],
+  },
+  {
+    name: 'Vase',
+    background: [[323, 40, 14]],
+    colors: [[200, 72, 63], [41, 100, 53], [336, 53, 81], [358, 100, 78]],
+  },
+  {
+    name: 'Starlet',
+    background: [[193, 14, 19]],
+    colors: [[18, 100, 59], [264, 49, 65], [55, 100, 50], [357, 59, 88]],
+  },
+  {
+    name: 'Carnation',
+    background: [[214, 68, 40]],
+    colors: [[352, 100, 65], [41, 100, 53], [178, 52, 68]],
   },
 ];
 
@@ -85,64 +186,72 @@ const BORDER_WIDTH_RATIO = 0.085; // ratio of the canvas width, note that 0.085 
 const BORDER_EXCLUDE = false; // whether to prohibit rendering dots in the border area
 const BORDER_OVERLAY = true; // whether we redraw the border over whatever is in the border area at the end of each frame
 
-const DOT_DENSITY = 800; // number of dots (on the x axis)
-const DOT_SIZE = 1 / Math.sqrt(2); // the distance from the center of the dot to a corner - do not change
+const DOT_DENSITY = dotDensity || 400; // number of dots (on the x axis)
+const DOT_SIZE = 1 / Math.sqrt(2) * (exportLayers === 'flat' ? 1.1 : 1); // the distance from the center of the dot to a corner - do not change
 const DOT_SIZE_NOISE_DENSITY = 0.025; // the density of the Perlin noise that distorts the corners of the dots
-const DOT_SIZE_NOISE_MAGNITUDE = 0.25; // the magnitude of the Perlin noise that distorts the corners of the dots
-const DOT_SIZE_GAUSSIAN_SD = 0.15; // the standard deviation of the Gaussian noise that distorts the corners of the dots
+const DOT_SIZE_NOISE_MAGNITUDE = exportLayers === 'flat' ? 0 : 0.25; // the magnitude of the Perlin noise that distorts the corners of the dots
+const DOT_SIZE_GAUSSIAN_SD = exportLayers === 'flat' ? 0 : 0.15; // the standard deviation of the Gaussian noise that distorts the corners of the dots
 const DOT_H_SD = 2; // the standard deviation of the Gaussian noise that affects the Hue of the dots
 const DOT_S_SD = 2; // the standard deviation of the Gaussian noise that affects the Saturation of the dots
 const DOT_L_SD = 2; // the standard deviation of the Gaussian noise that affects the Lightness of the dots
-const DOT_ALPHA_MEAN = 80; // the mean Alpha of the dots
 const DOT_ALPHA_SD = 10; // the standard deviation of the Gaussian noise that affects the Alpha of the dots
 const DOT_PARTIAL_SIDE_GRANULARITY = 8; // the level of accuracy for calculating partial dots for smooth curve edges - do not change
 
-const TILE_ZOOM_RATIO = chooseFromList([0.5, 1, 2, 4, 0.66, 0.75, 1.33, 1.5]); // the zoom of the Chladni tiles
-const TILE_X_OFFSET = chooseFromList([-0.75, -0.5, -0.25, 0, 0.25, 0.5, 0.75]); // the x-offset of the Chladni tiles
-const TILE_Y_OFFSET = chooseFromList([-1.25, -1, -0.75, -0.5, -0.25, 0, 0.25, 0.5, 0.75, 1, 1.25]); // the y-offset of the Chladni tiles
+const TILE_ZOOM_RATIO = chooseFromList([1, 1.3333, 2, 2.6667, 4, 5.3333, 8]); // the zoom of the Chladni tiles
+const TILE_X_OFFSET = chooseFromList([0, 0.25, 0.5, 0.75]); // the x-offset of the Chladni tiles
+const TILE_Y_OFFSET = chooseFromList([0, 0.25, 0.5, 0.75]); // the y-offset of the Chladni tiles
 
-const ROTATION = chooseFromList([-81, -64, -49, -36, -25, -16, -9, 0, 9, 16, 25, 36, 49, 64, 81]);
+const ROTATION = randomUnit() < 0.33
+  ? 0
+  : chooseFromList([-81, -64, -49, -36, -25, -16, -9, 9, 16, 25, 36, 49, 64, 81]);
 
+const PALETTE = chooseFromList(PALETTES);
+const IS_MONOCHROME = PALETTE.colors.length === 1;
+const RANGE_COUNT = chooseFromList([
+  4, 6, // low
+  12, 16, // med
+  24, 32, // high
+  128, // v high
+]) + ((IS_MONOCHROME && randomUnit() < 0.5) ? 1 : 0) // to get different behaviour at end of ranges for IS_MONOCHROME
+
+// TODO I'm mixing terminology of "layer" and "range"
 const LAYER_ROTATIONAL_OFFSET_CENTER_MAX_DISTANCE = 0.1; // the maximum offset of the center of rotation of the layer from the center of the canvas (as a ratio of the width of the drawing)
-const LAYER_MISREGISTRATION = chooseFromList(['NONE', 'VERY_LOW', 'LOW', 'MEDIUM', 'HIGH']);
+const LAYER_MISREGISTRATION = IS_MONOCHROME ? 'NONE' : chooseFromList(['NONE', 'LOW', 'MEDIUM', 'HIGH']);
 const LAYER_ROTATIONAL_OFFSET_MAX = {
   NONE: 0,
-  VERY_LOW: 0.25,
   LOW: 1,
   MEDIUM: 2,
   HIGH: 3
 }[LAYER_MISREGISTRATION]; // the maximum rotation of a layer (in degrees)
 const LAYER_TRANSLATIONAL_OFFSET_MAX_DISTANCE = {
   NONE: 0,
-  VERY_LOW: 0.0025,
   LOW: 0.01,
   MEDIUM: 0.02,
   HIGH: 0.03
 }[LAYER_MISREGISTRATION]; // the maximum offset of the center of the layer from the center of the canvas (as a ratio of the width of the drawing)
 
-const PALETTE = chooseFromList(PALETTES);
-
-const LAYER_COLOR_REPEAT_COUNT = chooseFromList(
-  {
-    SMALL: [4, 8],
-    MEDIUM: [1, 2, 4, 8],
-    LARGE: [1, 2]
-  }[PALETTE.size]
-);
-
-const COORDINATE_SYSTEM = chooseFromList(['CARTESIAN', 'POLAR']);
-const POLAR_CENTER_X = chooseFromList([-0.5, -0.25, 0, 0.25, 0.5, 0.75, 1, 1.25, 1.5])
-const POLAR_CENTER_Y = chooseFromList([-0.5, -0.25, 0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2])
-
 const LAYER_COLOR_GAPS_ALLOWED = false; // chooseByProbability([{ value: true, probability: 0.1 }, { value: false, probability: 0.9 }]).value; // are gaps allowed in the layers (i.e. a layer with no color)
 const LAYER_COLOR_SHUFFLE = false; // n.b. if true, this allows two same coloured layers next to each other, which (if offset) is a strange concept for risograph
-const LAYER_COLOR_RANGE_MIN = 0.1; // the minimum Chladni range for a layer - a smaller value gives narrower layers
-const LAYER_DISTRIBUTION = chooseFromList(['RANDOM', 'ONE_THICK', 'ONE_THIN']);
+const LAYER_COLOR_RANGE_MIN = 0.2; // the minimum Chladni range for a layer - a smaller value gives narrower layers
+const LAYER_WIDTH_DISTRIBUTION = chooseFromList([
+  'RANDOM',
+  'UNIFORM',
+  'ALTERNATE', // see LAYER_WIDTH_DISTRIBUTION_ALTERNATIVE_THICKNESS_FACTOR
+  'INCREASING',
+  'DECREASING',
+  'ONE_THICK' // see LAYER_WIDTH_DISTRIBUTION_ONE_THICK_THICKNESS_FACTOR
+]);
+const LAYER_WIDTH_DISTRIBUTION_ALTERNATIVE_THICKNESS_FACTOR = 3;
+const LAYER_WIDTH_DISTRIBUTION_ONE_THICK_THICKNESS_FACTOR = 6;
+
+const COORDINATE_SYSTEM = chooseFromList(['CARTESIAN', 'POLAR']);
+const POLAR_CENTER_X = chooseFromList([-0.5, -0.25, 0, 0.25, 0.5, 0.75, 1, 1.25, 1.5]) // TODO remove
+const POLAR_CENTER_Y = chooseFromList([-0.5, -0.25, 0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]) // TODO remove
 
 let shapes;
+let layers;
 
 function setup() {
-  console.log('setup start')
   CANVAS = createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
   CANVAS.parent('sketch-canvas');
   randomSeed(randomUnit() * 1000);
@@ -164,55 +273,75 @@ function setup() {
     (a === -b && Math.abs(n) === Math.abs(m))
   )
 
-  const colorsCount = PALETTE.colors.length * LAYER_COLOR_REPEAT_COUNT;
+  const ranges = (new Array(RANGE_COUNT)).fill(0).map(_ => ({ range: [] }))
+  let previousColor = (IS_MONOCHROME && randomUnit() < 0.5) ? PALETTE.colors[0] : undefined;
+  for (const range of ranges) {
+    const newColor = chooseFromList(PALETTE.colors.filter(c => c !== previousColor))
+    range.color = newColor;
+    previousColor = newColor
+  }
+  if (!IS_MONOCHROME && PALETTE.accentColor != null) ranges[Math.floor(randomUnit() * ranges.length)].color = PALETTE.accentColor;
+
+  const toClosestTenth = (input) => Math.round(10 * input) / 10;
   const maxForColorRange = Math.abs(m) !== Math.abs(n)
     ? Math.abs(a) + Math.abs(b)
     : Math.abs(a + b)
-
-  const gapAtMin = LAYER_COLOR_GAPS_ALLOWED ? random() < 0.5 : false;
-  const gapAtMax = LAYER_COLOR_GAPS_ALLOWED ? random() < 0.5 : false;
-  const gapCount = LAYER_COLOR_GAPS_ALLOWED ? chooseFromList((new Array(colorsCount - 1)).fill(0).map((_, i) => i + 1)) : 0;
-  const gaps = shuffle((new Array(colorsCount - 1)).fill(0).map((_, i) => i)).slice(0, gapCount);
-  const paletteColors = [];
-  for (let i = 0; i < LAYER_COLOR_REPEAT_COUNT; i++) {
-    paletteColors.push(...PALETTE.colors);
-  }
-  if (LAYER_COLOR_SHUFFLE) shuffle(paletteColors);
-  if (PALETTE.accentColor != null) paletteColors.splice(Math.floor(randomUnit() * (paletteColors.length + 1)), 0, PALETTE.accentColor);
-
-  const ranges = [];
-  const totalSlotCount = (2 * maxForColorRange) / LAYER_COLOR_RANGE_MIN;
-
-  let slotCount = 0;
-  if (gapAtMin) ranges.push({ slotCount: 1 });
-  for (let i = 0; i < colorsCount; i++) {
-    ranges.push({ color: paletteColors[i % paletteColors.length], slotCount: 1 });
-    if (++slotCount >= totalSlotCount) break;
-    if (gaps.includes(i)) ranges.push({ slotCount: 1 });
-    if (++slotCount >= totalSlotCount) break;
-  }
-  if (gapAtMax && ranges.length < totalSlotCount) ranges.push({ slotCount: 1 });
-
-  let totalRemainingSlots = totalSlotCount - ranges.length;
-  let specialIndex;
-  while (specialIndex == null || ranges[specialIndex].color == null) specialIndex = 1 + Math.floor(random() * (ranges.length - 2)); // n.b. can ranges ever be <= 2?
-  while (totalRemainingSlots > 0) {
-    const index = Math.floor(random() * ranges.length);
-    if (
-      !LAYER_DISTRIBUTION ||
-      (LAYER_DISTRIBUTION === 'ONE_THICK' && index !== specialIndex && randomUnit() < 1 - (1 / ranges.length)) ||
-      (LAYER_DISTRIBUTION === 'ONE_THIN' && index === specialIndex && randomUnit() < 1 - (1 / ranges.length))
-    ) continue;
-    ranges[index].slotCount += 1;
-    totalRemainingSlots--;
-  }
-
-  let cumulativeSlotCount = -maxForColorRange / LAYER_COLOR_RANGE_MIN;
-  for (let i = 0; i < ranges.length; i++) {
-    const increment = ranges[i].slotCount;
-    ranges[i].range = [cumulativeSlotCount, cumulativeSlotCount + increment].map(a => a * Math.round(LAYER_COLOR_RANGE_MIN * 10) / 10);
-    delete ranges[i].slotCount;
-    cumulativeSlotCount += increment;
+  // TODO remove/replace LAYER_COLOR_RANGE_MIN
+  switch (LAYER_WIDTH_DISTRIBUTION) {
+    case 'RANDOM': {
+      const toBeDivided = (2 * maxForColorRange) - (ranges.length * LAYER_COLOR_RANGE_MIN);
+      const assignments = ranges.map(_ => randomUnit())
+      const assignmentTotal = assignments.reduce((acc, el) => acc + el);
+      let start = -maxForColorRange;
+      for (let i = 0; i < ranges.length; i++) {
+        const width = LAYER_COLOR_RANGE_MIN + assignments[i] * toBeDivided / assignmentTotal;
+        ranges[i].range = [start, start + width].map(toClosestTenth)
+        start += width
+      }
+      break;
+    }
+    case 'UNIFORM': {
+      for (let i = 0; i < ranges.length; i++) {
+        ranges[i].range = [0, 1].map(v => -maxForColorRange + (i + v) * (2 * maxForColorRange) / ranges.length).map(toClosestTenth)
+      }
+      break;
+    }
+    case 'ALTERNATE': { // n.b. thin first
+      const trancheCount = (LAYER_WIDTH_DISTRIBUTION_ALTERNATIVE_THICKNESS_FACTOR + 1) * (Math.floor(ranges.length / 2)) + (ranges.length % 2)
+      const tranchesWidth = 2 * maxForColorRange / trancheCount;
+      for (let i = 0; i < ranges.length; i++) {
+        const cycles = Math.floor(i / 2);
+        const startsAt = cycles * (LAYER_WIDTH_DISTRIBUTION_ALTERNATIVE_THICKNESS_FACTOR + 1) + i % 2;
+        ranges[i].range = [startsAt, startsAt + ((i % 2 === 0) ? 1 : LAYER_WIDTH_DISTRIBUTION_ALTERNATIVE_THICKNESS_FACTOR)].map(v => -maxForColorRange + v * tranchesWidth).map(toClosestTenth)
+      }
+      break;
+    }
+    case 'INCREASING':
+    case 'DECREASING': {
+      const min = LAYER_COLOR_RANGE_MIN;
+      const max = 2 * (2 * maxForColorRange) / ranges.length - min;
+      let start = -maxForColorRange;
+      for (let i = 0; i < ranges.length; i++) {
+        const width = min + (LAYER_WIDTH_DISTRIBUTION === 'INCREASING' ? i : ((ranges.length - 1) - i)) * (max - min) / (ranges.length - 1);
+        ranges[i].range = [start, start + width].map(toClosestTenth)
+        start += width
+      }
+      break;
+    }
+    case 'ONE_THICK': {
+      const ratios = ranges.map(_ => randomUnit());
+      const largestRatio = Math.max(...ratios)
+      const thickIndex = 1 + Math.floor(randomUnit() * ranges.length - 2);
+      ratios[thickIndex] = largestRatio * LAYER_WIDTH_DISTRIBUTION_ONE_THICK_THICKNESS_FACTOR;
+      const totalRatio = ratios.reduce((acc, el) => acc + el);
+      let start = -maxForColorRange;
+      for (let i = 0; i < ranges.length; i++) {
+        const width = 2 * maxForColorRange * ratios[i] / totalRatio;
+        ranges[i].range = [start, start + width].map(toClosestTenth)
+        start += width
+      }
+    }
+    break;
   }
 
   const noiseOffsets = (new Array(ranges.length)).fill(0).map(_ => randomUnit() * 1000)
@@ -220,25 +349,25 @@ function setup() {
   const angleOffsets = (new Array(ranges.length)).fill(0).map(_ => ({ angle: randomFloat(2 * PI * -LAYER_ROTATIONAL_OFFSET_MAX / 360, 2 * PI * LAYER_ROTATIONAL_OFFSET_MAX / 360), x: randomFloat(-LAYER_ROTATIONAL_OFFSET_CENTER_MAX_DISTANCE, LAYER_ROTATIONAL_OFFSET_CENTER_MAX_DISTANCE) + DRAWING_WIDTH_RATIO / 2, y: randomFloat(-LAYER_ROTATIONAL_OFFSET_CENTER_MAX_DISTANCE, LAYER_ROTATIONAL_OFFSET_CENTER_MAX_DISTANCE) + DRAWING_HEIGHT_RATIO / 2 }));
   shapes = (new Array(ranges.length)).fill(0).map(_ => []);
 
+  // rotation around center of canvas
   const getChladni = (xOrig, yOrig) => {
     const xAngleCenter = DRAWING_WIDTH_RATIO / 2;
     const yAngleCenter = DRAWING_HEIGHT_RATIO / 2;
     const theta = atan2((xOrig - xAngleCenter), (yOrig - yAngleCenter));
     const distance = Math.sqrt((xOrig - xAngleCenter)**2 + (yOrig - yAngleCenter)**2);
 
-    let x = xAngleCenter + sin(theta - (2 * Math.PI * ROTATION / 360)) * distance;
-    let y = yAngleCenter + cos(theta - (2 * Math.PI * ROTATION / 360)) * distance;
-
-    x = (x - TILE_X_OFFSET) / TILE_ZOOM_RATIO;
-    y = (y - TILE_Y_OFFSET) / TILE_ZOOM_RATIO;
-
-    if (COORDINATE_SYSTEM === 'POLAR') {
-      const xPolarCenter = (POLAR_CENTER_X - TILE_X_OFFSET) / TILE_ZOOM_RATIO;
-      const yPolarCenter = (POLAR_CENTER_Y - TILE_Y_OFFSET) / TILE_ZOOM_RATIO;
+    let x = xAngleCenter + sin(theta + (2 * Math.PI * ROTATION / 360)) * distance;
+    let y = yAngleCenter + cos(theta + (2 * Math.PI * ROTATION / 360)) * distance;
+    if (COORDINATE_SYSTEM === 'CARTESIAN') {
+      x = (x - (TILE_X_OFFSET * TILE_ZOOM_RATIO + DRAWING_WIDTH_RATIO / 2)) / (0.5 * TILE_ZOOM_RATIO);
+      y = (y - (TILE_Y_OFFSET * TILE_ZOOM_RATIO + DRAWING_HEIGHT_RATIO / 2)) / (0.5 * TILE_ZOOM_RATIO);
+    } else {
+      const xPolarCenter = TILE_X_OFFSET * TILE_ZOOM_RATIO + DRAWING_WIDTH_RATIO / 2;
+      const yPolarCenter = TILE_Y_OFFSET * TILE_ZOOM_RATIO + DRAWING_HEIGHT_RATIO / 2;
       const polarTheta = atan2((x - xPolarCenter), (y - yPolarCenter));
       const polarDistance = Math.sqrt((x - xPolarCenter)**2 + (y - yPolarCenter)**2);
 
-      x = polarDistance;
+      x = polarDistance / (0.5 * TILE_ZOOM_RATIO);
       y = ((polarTheta - Math.PI) / Math.PI);
     }
 
@@ -306,7 +435,7 @@ function setup() {
             randomGaussian(color[0], DOT_H_SD),
             randomGaussian(color[1], DOT_S_SD),
             randomGaussian(color[2], DOT_L_SD),
-            randomGaussian(DOT_ALPHA_MEAN, DOT_ALPHA_SD),
+            randomGaussian(color[3] ?? 80, DOT_ALPHA_SD),
           ],
           vertexes: []
         }
@@ -344,7 +473,15 @@ function setup() {
       }
     }
   }
-  console.log('setup done')
+
+  layers = {};
+  for (let rangeIndex = 0; rangeIndex < ranges.length; rangeIndex++) {
+    const color = ranges[rangeIndex].color;
+    if (color == null) continue; // TODO needed?
+    const colorKey = `${color.join('-')}`;
+    layers[colorKey] = (layers[colorKey] ?? []).concat(shapes[rangeIndex])
+  }
+
   // TODO - belts and braces check that if % of one color is too high then we retry the entire setup
 }
 
@@ -367,13 +504,35 @@ function draw() {
   }
 
   if (frameCount === shapes.length) {
+    if (exportLayers === 'mosaic' || exportLayers === 'flat') {
+      for (const colorKey of Object.keys(layers)) {
+        const shapes = layers[colorKey];
+        const layer = createGraphics(CANVAS_WIDTH, CANVAS_HEIGHT);
+        layer.colorMode(HSL, 360, 100, 100, 100);
+        layer.pixelDensity(1)
+        layer.noStroke();
+        for (const shape of shapes) {
+          if (exportLayers === 'mosaic') {
+            layer.fill(0, 0, 0, shape.fill[3]);
+          } else {
+            layer.fill(0, 0, 0, 100);
+          }
+          layer.beginShape();
+          for (const [x, y] of shape.vertexes) layer.vertex(x, y);
+          layer.endShape()
+        }
+        save(layer, `${exportLayers}_${seed}_${frameCount}_${colorKey}.png`);
+      }
+    }
+
     noLoop();
     if (downloadIndexParam != null) {
-      save(`resoriso-${originalSeed}-${downloadIndexParam}-${COORDINATE_SYSTEM}-${PALETTE.name}-${LAYER_COLOR_REPEAT_COUNT}-${LAYER_MISREGISTRATION}-${TILE_ZOOM_RATIO}-${LAYER_COLOR_GAPS_ALLOWED}-${LAYER_DISTRIBUTION}.png`);
+      save(`resoriso-${PALETTE.name}-${originalSeed}-${downloadIndexParam}-${COORDINATE_SYSTEM}-${LAYER_MISREGISTRATION}-${TILE_ZOOM_RATIO}-${LAYER_COLOR_GAPS_ALLOWED}-${LAYER_DISTRIBUTION}.png`);
       if (downloadIndexParam > 1) {
         let url =
           `${window.location.protocol}//${window.location.host + window.location.pathname}?downloadIndex=${downloadIndexParam - 1}`;
         if (sizeQueryParam > 0) url += `&size=${sizeQueryParam}`;
+        if (exportLayers) url += `&exportlayers=true`;
         setTimeout(() => window.location.href = url, 3000);
       }
     }
@@ -434,5 +593,3 @@ function chooseByProbability(list) {
 const downloadIndexParam = new URLSearchParams(window.location.search).get('downloadIndex') != null // TODO remove for release
   ? parseInt(new URLSearchParams(window.location.search).get('downloadIndex') ?? 0, 10)
   : undefined;
-
-console.log('bottom')
