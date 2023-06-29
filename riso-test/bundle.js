@@ -1,18 +1,24 @@
 // TODO remove for release
-const exportLayers = new URLSearchParams(window.location.search).get('exportlayers');
 const sizeQueryParam = parseInt(new URLSearchParams(window.location.search).get('size') ?? 0, 10);
-const seedParam = parseInt(new URLSearchParams(window.location.search).get('seed') ?? 0, 10);
 const dotDensity = parseInt(new URLSearchParams(window.location.search).get('tiledensity') ?? 0, 10);
+const seedParam = parseInt(new URLSearchParams(window.location.search).get('seed') ?? 0, 10);
+const exportLayers = new URLSearchParams(window.location.search).get('exportlayers');
 
 let seed = seedParam || Math.floor(Math.random() * 1000000000000000);
 const originalSeed = seed;
 console.log('seed', originalSeed);
 
+if (!seedParam) {
+  const url = new URL(location);
+  url.searchParams.set('seed', seed);
+  history.pushState({}, '', url);
+}
+
 const PALETTES = [
   {
     name: 'Breaking News',
     background: [32, 25, 88],
-    colors: [[0, 0, 0, 85], [0, 0, 0 , 65], [0, 0, 0 , 50], [0, 0, 100, 80]],
+    colors: [[0, 0, 0, 85], [0, 0, 0 , 65], [0, 0, 0 , 50], [241, 1, 54, 40]],
     accentColor: [18, 100, 59, 100],
   },
   {
@@ -31,7 +37,7 @@ const PALETTES = [
     colors: [[0, 0, 0], [202, 100, 37], [193, 72, 63], [326, 100, 64]],
   },
   {
-    name: 'Cyano',
+    name: 'Coral',
     background: [32, 25, 88],
     colors: [[193, 72, 63], [202, 100, 37], [222, 53, 42], [358, 100, 78]],
   },
@@ -46,139 +52,95 @@ const PALETTES = [
     colors: [[76, 19, 37], [36, 27, 55], [24, 64, 45], [210, 1, 54]],
   },
   {
-    name: 'Lessons',
-    background: [32, 25, 88],
-    colors: [[18, 100, 59], [326, 100, 64], [261, 30, 51]],
-  },
-  {
-    name: 'Seaside',
-    background: [32, 25, 88],
-    colors: [[221, 38, 39], [352, 100, 65], [200, 72, 63], [18, 100, 59]],
-  },
-  {
     name: 'Metal',
     background: [[32, 25, 88]],
     colors: [[20, 54, 48], [353, 49, 54], [36, 27, 55], [221, 38, 39]],
   },
   {
-    name: 'Lilac',
-    background: [[32, 25, 88]],
-    colors: [[261, 30, 51], [336, 53, 81], [200, 72, 63]],
-  },
-  {
-    name: 'Fluoro',
+    name: 'Roller Disco',
     background: [[32, 25, 88]],
     colors: [[178, 52, 68], [41, 100, 53], [326, 100, 64], [264, 49, 65]],
   },
   {
-    name: 'Blush',
-    background: [32, 25, 88],
-    colors: [[353, 49, 54], [352, 100, 65], [358, 100, 78], [357, 59, 88]],
-  },
-  {
-    name: 'Ocean',
+    name: 'Duo A',
     background: [[32, 25, 88]],
-    colors: [[221, 38, 39], [222, 53, 42], [202, 100, 37], [200, 72, 63]],
+    colors: [[261, 30, 51], [200, 72, 63]],
   },
   {
-    name: 'Amethyst',
+    name: 'Duo B',
     background: [[32, 25, 88]],
-    colors: [[287, 48, 64], [264, 49, 65], [261, 30, 51]],
+    colors: [[326, 100, 64], [183, 100, 27]],
   },
   {
-    name: 'DuoA',
+    name: 'Duo C',
     background: [[32, 25, 88]],
-    colors: [[261, 30, 51, 90], [200, 72, 63, 90]],
+    colors: [[324, 91, 75], [202, 100, 37]],
+    colors: [[324, 91, 75], [202, 100, 37]],
   },
   {
-    name: 'DuoB',
+    name: 'Mono Black',
     background: [[32, 25, 88]],
-    colors: [[326, 100, 64, 90], [183, 100, 27, 90]],
+    colors: [[0, 0, 0]],
   },
   {
-    name: 'DuoC',
+    name: 'Mono Blue',
     background: [[32, 25, 88]],
-    colors: [[324, 91, 75, 90], [202, 100, 37, 90]],
+    colors: [[222, 53, 42]],
   },
   {
-    name: 'Monochrome',
+    name: 'Mono Sun',
     background: [[32, 25, 88]],
-    colors: [chooseFromList([[0, 0, 0], [41, 100, 53], [358, 100, 78], [264, 49, 65], [183, 100, 27], [222, 53, 42]])],
+    colors: [[41, 100, 53]],
   },
   {
-    name: 'Blackboard',
-    background: [[225, 8, 19]],
-    colors: [chooseFromList([[0, 0, 100, 100], [36, 27, 55, 100]])],
+    name: 'Natural Greyscale',
+    background:  [[32, 25, 88]],
+    colors: [[0, 0, 0, 85], [0, 0, 0 , 65], [0, 0, 0 , 50], [241, 1, 54, 40]],
   },
   {
-    name: 'Pastel Greyscale',
-    background:  chooseFromList([[32, 25, 88], [282, 31, 70], [359, 48, 75], [72, 23, 78], [223, 44, 85]]),
-    colors: [[0, 0, 0, 85], [0, 0, 0 , 65], [0, 0, 0 , 50], [0, 0, 100, 80]],
+    name: 'Azure Greyscale',
+    background:  [[223, 44, 85]],
+    colors: [[0, 0, 0, 85], [0, 0, 0 , 65], [0, 0, 0 , 50], [241, 1, 54, 40]],
   },
   {
-    name: 'Bold Greyscale',
-    background:  chooseFromList([[225, 8, 19], [36, 100, 44], [214, 68, 40], [340, 100, 61], [359, 65, 43]]),
-    colors: [[0, 0, 0, 85], [0, 0, 0 , 65], [0, 0, 0 , 50], [0, 0, 100, 80]],
+    name: 'Candy Greyscale',
+    background:  [[359, 48, 75]],
+    colors: [[0, 0, 0, 85], [0, 0, 0 , 65], [0, 0, 0 , 50], [357, 59, 88, 90]],
+  },
+  {
+    name: 'Pistachio Greyscale',
+    background:  [[72, 23, 78]],
+    colors: [[0, 0, 0, 85], [0, 0, 0 , 65], [0, 0, 0 , 50], [241, 1, 54, 40]],
+  },
+  {
+    name: 'Citrine Greyscale',
+    background:  [[36, 100, 44]],
+    colors: [[0, 0, 0, 85], [0, 0, 0 , 65], [0, 0, 0 , 50], [357, 59, 88, 60]],
+  },
+  {
+    name: 'Adriatic Greyscale',
+    background:  [[214, 68, 40]],
+    colors: [[0, 0, 0, 85], [0, 0, 0 , 65], [0, 0, 0 , 50], [357, 59, 88, 20]],
   },
   {
     name: 'Blue Overprint',
     background: [[223, 44, 85]],
-    colors: [[202, 100, 37], [200, 72, 63], [0, 0, 100, 90]],
+    colors: [[202, 100, 37], [200, 72, 63], [221, 38, 39]],
   },
   {
     name: 'Lilac Overprint',
     background: [[282, 31, 70]],
-    colors: [[287, 48, 64], [264, 49, 65], [261, 30, 51], [0, 0, 100, 90]],
+    colors: [[287, 48, 64], [264, 49, 65], [261, 30, 51]],
   },
   {
     name: 'Pink Overprint',
     background: [[359, 48, 75]],
-    colors: [[336, 53, 81], [353, 49, 54], [0, 0, 100, 90]],
-  },
-  {
-    name: 'WatercolourA',
-    background: [[0, 0, 92]],
-    colors: [[261, 30, 51, 40], [41, 100, 53, 40], [200, 72, 63, 40]],
-  },
-  {
-    name: 'WatercolourB',
-    background: [[0, 0, 92]],
-    colors: [[261, 30, 51, 40], [41, 100, 53, 40], [200, 72, 63, 40], [354, 85, 63, 40], [336, 53, 81], [221, 38, 39, 40]],
-  },
-  {
-    name: 'WatercolourC',
-    background: [[0, 0, 92]],
-    colors: [[178, 52, 68, 40], [222, 53, 42, 40], [354, 85, 63, 40]],
-  },
-  {
-    name: 'WatercolourD',
-    background: [[0, 0, 92]],
-    colors: [[358, 100, 78, 40], [3, 100, 68, 40], [352, 100, 65, 40], [357, 59, 88, 60], [200, 72, 63, 40]],
-  },
-  {
-    name: 'WatercolourE',
-    background: [[0, 0, 92]],
-    colors: [[324, 91, 75, 40], [41, 100, 53, 40], [183, 100, 27, 40]],
-  },
-  {
-    name: 'WatercolourF',
-    background: [[0, 0, 92]],
-    colors: [[20, 54, 48, 40], [0, 0, 0, 40], [76, 19, 37, 40]],
+    colors: [[336, 53, 81], [353, 49, 54], [357, 59, 88, 90]],
   },
   {
     name: 'Vase',
     background: [[323, 40, 14]],
-    colors: [[200, 72, 63], [41, 100, 53], [336, 53, 81], [358, 100, 78]],
-  },
-  {
-    name: 'Starlet',
-    background: [[193, 14, 19]],
-    colors: [[18, 100, 59], [264, 49, 65], [55, 100, 50], [357, 59, 88]],
-  },
-  {
-    name: 'Carnation',
-    background: [[214, 68, 40]],
-    colors: [[352, 100, 65], [41, 100, 53], [178, 52, 68]],
+    colors: [[200, 72, 63, 50], [41, 100, 53, 50], [336, 53, 81, 50], [358, 100, 78, 50]],
   },
 ];
 
@@ -230,9 +192,6 @@ const LAYER_TRANSLATIONAL_OFFSET_MAX_DISTANCE = {
   HIGH: 0.03
 }[LAYER_MISREGISTRATION]; // the maximum offset of the center of the layer from the center of the canvas (as a ratio of the width of the drawing)
 
-const LAYER_COLOR_GAPS_ALLOWED = false; // chooseByProbability([{ value: true, probability: 0.1 }, { value: false, probability: 0.9 }]).value; // are gaps allowed in the layers (i.e. a layer with no color)
-const LAYER_COLOR_SHUFFLE = false; // n.b. if true, this allows two same coloured layers next to each other, which (if offset) is a strange concept for risograph
-const LAYER_COLOR_RANGE_MIN = 0.2; // the minimum Chladni range for a layer - a smaller value gives narrower layers
 const LAYER_WIDTH_DISTRIBUTION = chooseFromList([
   'RANDOM',
   'UNIFORM',
@@ -244,20 +203,43 @@ const LAYER_WIDTH_DISTRIBUTION = chooseFromList([
 const LAYER_WIDTH_DISTRIBUTION_ALTERNATIVE_THICKNESS_FACTOR = 3;
 const LAYER_WIDTH_DISTRIBUTION_ONE_THICK_THICKNESS_FACTOR = 6;
 
+const LAYER_COLOR_RANGE_MIN = 0.2; // the minimum Chladni range for a layer - a smaller value gives narrower layers
+const LAYER_COLOR_DISTRIBUTION = IS_MONOCHROME ? 'SMART_SHUFFLE' : chooseFromList([
+  'SMART_SHUFFLE',
+
+  'HSL_SORT_HUE',
+  'HSL_ROTATE_HUE',
+  'HSL_BOUNCE_HUE',
+
+  'HSL_SORT_LIGHTNESS',
+  'HSL_ROTATE_LIGHTNESS',
+  'HSL_BOUNCE_LIGHTNESS',
+
+  // 'DOMINANT'
+]);
+
 const COORDINATE_SYSTEM = chooseFromList(['CARTESIAN', 'POLAR']);
 const POLAR_CENTER_X = chooseFromList([-0.5, -0.25, 0, 0.25, 0.5, 0.75, 1, 1.25, 1.5]) // TODO remove
 const POLAR_CENTER_Y = chooseFromList([-0.5, -0.25, 0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]) // TODO remove
 
 let shapes;
 let layers;
+let offscreenCanvas;
 
 function setup() {
-  CANVAS = createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
-  CANVAS.parent('sketch-canvas');
+  const canvas = createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
+  colorMode(HSL, 360, 100, 100, 100);
+  noStroke();
+  background(...PALETTE.background);
+
+  offscreenCanvas = createGraphics(CANVAS_WIDTH, CANVAS_HEIGHT);
+  offscreenCanvas.colorMode(HSL, 360, 100, 100, 100);
+  offscreenCanvas.noStroke();
+  offscreenCanvas.blendMode(MULTIPLY);
+
+  canvas.parent('sketch-canvas');
   randomSeed(randomUnit() * 1000);
   noiseSeed(randomUnit() * 1000)
-  colorMode(HSL, 360, 100, 100, 100);
-  background(...PALETTE.background); 
 
   shapes = [];
 
@@ -274,74 +256,86 @@ function setup() {
   )
 
   const ranges = (new Array(RANGE_COUNT)).fill(0).map(_ => ({ range: [] }))
-  let previousColor = (IS_MONOCHROME && randomUnit() < 0.5) ? PALETTE.colors[0] : undefined;
-  for (const range of ranges) {
-    const newColor = chooseFromList(PALETTE.colors.filter(c => c !== previousColor))
-    range.color = newColor;
-    previousColor = newColor
-  }
-  if (!IS_MONOCHROME && PALETTE.accentColor != null) ranges[Math.floor(randomUnit() * ranges.length)].color = PALETTE.accentColor;
 
-  const toClosestTenth = (input) => Math.round(10 * input) / 10;
+  if (LAYER_COLOR_DISTRIBUTION === 'SMART_SHUFFLE') { // n.b. this can give all blank canvas if zoomed in on gap
+    let previousColor = (IS_MONOCHROME && randomUnit() < 0.5) ? PALETTE.colors[0] : undefined;
+    for (const range of ranges) {
+      const newColor = chooseFromList(PALETTE.colors.filter(c => c !== previousColor))
+      range.color = newColor;
+      previousColor = newColor
+    }
+    if (!IS_MONOCHROME && PALETTE.accentColor != null) chooseFromList(ranges).color = PALETTE.accentColor;
+  // } else if (LAYER_COLOR_DISTRIBUTION === 'DOMINANT') {
+  //   const dominantColor = chooseFromList(PALETTE.colors);
+  //   const colors = [...PALETTE.colors.filter(c => c !== dominantColor)];
+  //   if (PALETTE.accentColor) colors.push(PALETTE.accentColor)
+  //   while (colors.length < ranges.length) colors.push(dominantColor)
+  //   shuffle(colors, true);
+  //   for (let i = 0; i < colors.length; i++) ranges[i].color = colors[i]
+  } else { // HSL
+    const colors = (new Array(RANGE_COUNT)).fill(0);
+    const hslIndex = LAYER_COLOR_DISTRIBUTION.includes('HUE') ? 0 : 2;
+    const paletteColors = [...PALETTE.colors].sort((a, b) => a[hslIndex] - b[hslIndex]);
+    let i = 0;
+    if (LAYER_COLOR_DISTRIBUTION.includes('BOUNCE')) {
+      let paletteIndex = 0;
+      let isIncreasing = true;
+      while (i < colors.length) {
+        colors[i] = paletteColors[paletteIndex];
+        if (paletteIndex === 0) {
+          isIncreasing = true;
+          paletteIndex = 1
+        } else if (paletteIndex === paletteColors.length - 1) {
+          isIncreasing = false;
+          paletteIndex = paletteColors.length - 2
+        } else {
+          paletteIndex += (isIncreasing ? 1 : -1);
+        }
+        i++;
+      }
+    } else {
+      while (i < colors.length) colors[i] = paletteColors[i++ % paletteColors.length]
+      if (LAYER_COLOR_DISTRIBUTION.startsWith('HSL_SORT')) colors.sort((a, b) => a[hslIndex] - b[hslIndex])
+    }
+    for (let i = 0; i < RANGE_COUNT; i++) ranges[i].color = colors[i]
+    if (!IS_MONOCHROME && PALETTE.accentColor != null) chooseFromList(ranges).color = PALETTE.accentColor;
+  }
+
   const maxForColorRange = Math.abs(m) !== Math.abs(n)
     ? Math.abs(a) + Math.abs(b)
     : Math.abs(a + b)
-  // TODO remove/replace LAYER_COLOR_RANGE_MIN
-  switch (LAYER_WIDTH_DISTRIBUTION) {
-    case 'RANDOM': {
+  
+  if (LAYER_WIDTH_DISTRIBUTION === 'UNIFORM') {
+    for (let i = 0; i < ranges.length; i++) {
+      ranges[i].range = [0, 1].map(v => -maxForColorRange + (i + v) * (2 * maxForColorRange) / ranges.length).map(toClosestTenth)
+    }
+  } else if (LAYER_WIDTH_DISTRIBUTION === 'ALTERNATE') {
+    const tranchesWidth = 2 * maxForColorRange / (LAYER_WIDTH_DISTRIBUTION_ALTERNATIVE_THICKNESS_FACTOR + 1) * (Math.floor(ranges.length / 2)) + (ranges.length % 2);
+    for (let i = 0; i < ranges.length; i++) {
+      const startsAt = Math.floor(i / 2) * (LAYER_WIDTH_DISTRIBUTION_ALTERNATIVE_THICKNESS_FACTOR + 1) + i % 2;
+      ranges[i].range = [startsAt, startsAt + ((i % 2 === 0) ? 1 : LAYER_WIDTH_DISTRIBUTION_ALTERNATIVE_THICKNESS_FACTOR)].map(v => -maxForColorRange + v * tranchesWidth).map(toClosestTenth)
+    }
+  } else {
+    let getWidth;
+    if (LAYER_WIDTH_DISTRIBUTION === 'RANDOM') {
       const toBeDivided = (2 * maxForColorRange) - (ranges.length * LAYER_COLOR_RANGE_MIN);
       const assignments = ranges.map(_ => randomUnit())
-      const assignmentTotal = assignments.reduce((acc, el) => acc + el);
-      let start = -maxForColorRange;
-      for (let i = 0; i < ranges.length; i++) {
-        const width = LAYER_COLOR_RANGE_MIN + assignments[i] * toBeDivided / assignmentTotal;
-        ranges[i].range = [start, start + width].map(toClosestTenth)
-        start += width
-      }
-      break;
-    }
-    case 'UNIFORM': {
-      for (let i = 0; i < ranges.length; i++) {
-        ranges[i].range = [0, 1].map(v => -maxForColorRange + (i + v) * (2 * maxForColorRange) / ranges.length).map(toClosestTenth)
-      }
-      break;
-    }
-    case 'ALTERNATE': { // n.b. thin first
-      const trancheCount = (LAYER_WIDTH_DISTRIBUTION_ALTERNATIVE_THICKNESS_FACTOR + 1) * (Math.floor(ranges.length / 2)) + (ranges.length % 2)
-      const tranchesWidth = 2 * maxForColorRange / trancheCount;
-      for (let i = 0; i < ranges.length; i++) {
-        const cycles = Math.floor(i / 2);
-        const startsAt = cycles * (LAYER_WIDTH_DISTRIBUTION_ALTERNATIVE_THICKNESS_FACTOR + 1) + i % 2;
-        ranges[i].range = [startsAt, startsAt + ((i % 2 === 0) ? 1 : LAYER_WIDTH_DISTRIBUTION_ALTERNATIVE_THICKNESS_FACTOR)].map(v => -maxForColorRange + v * tranchesWidth).map(toClosestTenth)
-      }
-      break;
-    }
-    case 'INCREASING':
-    case 'DECREASING': {
+      getWidth = i => LAYER_COLOR_RANGE_MIN + assignments[i] * toBeDivided / assignments.reduce((acc, el) => acc + el);
+    } else if (LAYER_WIDTH_DISTRIBUTION === 'ONE_THICK') {
+      const ratios = ranges.map(_ => randomUnit());
+      ratios[1 + Math.floor(randomUnit() * ranges.length - 2)] = Math.max(...ratios) * LAYER_WIDTH_DISTRIBUTION_ONE_THICK_THICKNESS_FACTOR;
+      getWidth = i => 2 * maxForColorRange * ratios[i] / ratios.reduce((acc, el) => acc + el);
+    } else { // 'INCREASING' or 'DECREASING'
       const min = LAYER_COLOR_RANGE_MIN;
       const max = 2 * (2 * maxForColorRange) / ranges.length - min;
-      let start = -maxForColorRange;
-      for (let i = 0; i < ranges.length; i++) {
-        const width = min + (LAYER_WIDTH_DISTRIBUTION === 'INCREASING' ? i : ((ranges.length - 1) - i)) * (max - min) / (ranges.length - 1);
-        ranges[i].range = [start, start + width].map(toClosestTenth)
-        start += width
-      }
-      break;
+      getWidth = i => min + (LAYER_WIDTH_DISTRIBUTION === 'INCREASING' ? i : ((ranges.length - 1) - i)) * (max - min) / (ranges.length - 1);
     }
-    case 'ONE_THICK': {
-      const ratios = ranges.map(_ => randomUnit());
-      const largestRatio = Math.max(...ratios)
-      const thickIndex = 1 + Math.floor(randomUnit() * ranges.length - 2);
-      ratios[thickIndex] = largestRatio * LAYER_WIDTH_DISTRIBUTION_ONE_THICK_THICKNESS_FACTOR;
-      const totalRatio = ratios.reduce((acc, el) => acc + el);
-      let start = -maxForColorRange;
-      for (let i = 0; i < ranges.length; i++) {
-        const width = 2 * maxForColorRange * ratios[i] / totalRatio;
-        ranges[i].range = [start, start + width].map(toClosestTenth)
-        start += width
-      }
+
+    let start = -maxForColorRange;
+    for (let i = 0; i < ranges.length; i++) {
+      ranges[i].range = [start, start + getWidth(i)].map(toClosestTenth)
+      start += getWidth(i)
     }
-    break;
   }
 
   const noiseOffsets = (new Array(ranges.length)).fill(0).map(_ => randomUnit() * 1000)
@@ -435,7 +429,7 @@ function setup() {
             randomGaussian(color[0], DOT_H_SD),
             randomGaussian(color[1], DOT_S_SD),
             randomGaussian(color[2], DOT_L_SD),
-            randomGaussian(color[3] ?? 80, DOT_ALPHA_SD),
+            randomGaussian(color[3] ?? 70, DOT_ALPHA_SD),
           ],
           vertexes: []
         }
@@ -464,8 +458,8 @@ function setup() {
           const y = yRotated + cos(vertex.angle) * dotDistortionY * vertex.distance;
           if (BORDER_EXCLUDE && (x < 0 || y < 0 || x > DRAWING_WIDTH_RATIO || y > DRAWING_HEIGHT_RATIO)) continue;
           shape.vertexes.push([
-            (BORDER_WIDTH_RATIO + DRAWING_TO_CANVAS_RATIO * x) * CANVAS_WIDTH,
-            (BORDER_WIDTH_RATIO + DRAWING_TO_CANVAS_RATIO * y) * CANVAS_WIDTH,
+            (BORDER_WIDTH_RATIO + DRAWING_TO_CANVAS_RATIO * x),
+            (BORDER_WIDTH_RATIO + DRAWING_TO_CANVAS_RATIO * y),
           ])
         }
 
@@ -486,24 +480,9 @@ function setup() {
 }
 
 function draw() {
-  noStroke();
+  drawImage(this, offscreenCanvas, CANVAS_WIDTH, CANVAS_HEIGHT, frameCount);
 
-  for (const shape of shapes[frameCount - 1]) {
-    fill(...shape.fill);
-    beginShape();
-    for (const [x, y] of shape.vertexes) vertex(x, y);
-    endShape()
-  }
-
-  fill(...PALETTE.background);
-  if (BORDER_OVERLAY) {
-    rect(0, 0, CANVAS_WIDTH, BORDER_WIDTH_RATIO * CANVAS_WIDTH);
-    rect(0, 0, BORDER_WIDTH_RATIO * CANVAS_WIDTH, CANVAS_HEIGHT);
-    rect(CANVAS_WIDTH, CANVAS_HEIGHT, -CANVAS_WIDTH, -BORDER_WIDTH_RATIO * CANVAS_WIDTH);
-    rect(CANVAS_WIDTH, CANVAS_HEIGHT, -BORDER_WIDTH_RATIO * CANVAS_WIDTH, -CANVAS_HEIGHT);
-  }
-
-  if (frameCount === shapes.length) {
+  if (frameCount === 1) {
     if (exportLayers === 'mosaic' || exportLayers === 'flat') {
       for (const colorKey of Object.keys(layers)) {
         const shapes = layers[colorKey];
@@ -527,15 +506,72 @@ function draw() {
 
     noLoop();
     if (downloadIndexParam != null) {
-      save(`resoriso-${PALETTE.name}-${originalSeed}-${downloadIndexParam}-${COORDINATE_SYSTEM}-${LAYER_MISREGISTRATION}-${TILE_ZOOM_RATIO}-${LAYER_COLOR_GAPS_ALLOWED}-${LAYER_DISTRIBUTION}.png`);
+      save(getFileName());
       if (downloadIndexParam > 1) {
         let url =
           `${window.location.protocol}//${window.location.host + window.location.pathname}?downloadIndex=${downloadIndexParam - 1}`;
         if (sizeQueryParam > 0) url += `&size=${sizeQueryParam}`;
+        if (dotDensity > 0) url += `&tiledensity=${dotDensity}`;
         if (exportLayers) url += `&exportlayers=true`;
         setTimeout(() => window.location.href = url, 3000);
       }
     }
+  }
+}
+
+function drawImage(canvas, offscreenCanvas, canvasWidth, canvasHeight) {
+  for (const frames of Object.values(layers).reverse()) {
+    for (const shape of frames) {
+      offscreenCanvas.fill(...shape.fill);
+      offscreenCanvas.beginShape();
+      for (const [x, y] of shape.vertexes) offscreenCanvas.vertex(x * canvasWidth, y * canvasWidth);
+      offscreenCanvas.endShape()
+    }
+  }
+
+  canvas.image(offscreenCanvas, 0, 0)
+
+  canvas.fill(...PALETTE.background);
+  if (BORDER_OVERLAY) {
+    canvas.rect(0, 0, canvasWidth, BORDER_WIDTH_RATIO * canvasWidth);
+    canvas.rect(0, 0, BORDER_WIDTH_RATIO * canvasWidth, canvasHeight);
+    canvas.rect(canvasWidth, canvasHeight, -canvasWidth, -BORDER_WIDTH_RATIO * canvasWidth);
+    canvas.rect(canvasWidth, canvasHeight, -BORDER_WIDTH_RATIO * canvasWidth, -canvasHeight);
+  }
+}
+
+keyPressed = () => {
+  const rKeyCode = 82;
+  const sKeyCode = 83;
+  if (![rKeyCode, sKeyCode].includes(keyCode)) return;
+
+  if (keyCode === rKeyCode) {
+    let url =
+      `${window.location.protocol}//${window.location.host + window.location.pathname}`;
+    if (sizeQueryParam > 0 || dotDensity > 0)
+      url += `?${[(sizeQueryParam > 0 ? `size=${sizeQueryParam}` : undefined),(dotDensity > 0 ? `tiledensity=${dotDensity}` : undefined)].filter(Boolean).join('&')}`;
+    window.location.href = url
+  } else if (keyCode === sKeyCode) {
+    console.log(`Downloading print...`);
+    const downloadWidth = DONWLOAD_PRINT_DIMENSION / CANVAS_HEIGHT_RATIO;
+    const downloadHeight = DONWLOAD_PRINT_DIMENSION;
+
+    const downloadContext = createGraphics(downloadWidth, downloadHeight);
+    downloadContext.colorMode(HSL, 360, 100, 100, 100);
+    downloadContext.pixelDensity(1);
+    downloadContext.noStroke();
+    downloadContext.background(...PALETTE.background);
+
+    const downloadOffscreenContext = createGraphics(downloadWidth, downloadHeight);
+    downloadOffscreenContext.colorMode(HSL, 360, 100, 100, 100);
+    downloadOffscreenContext.pixelDensity(1);
+    downloadOffscreenContext.noStroke();
+
+    drawImage(downloadContext, downloadOffscreenContext, downloadWidth, downloadHeight);
+
+    downloadContext.save(getFileName());
+
+    console.log(`Download of print complete.`);
   }
 }
 
@@ -555,6 +591,8 @@ const CANVAS_HEIGHT = Math.round(!!sizeQueryParam // TODO remove for release
 const CANVAS_WIDTH = Math.round(CANVAS_HEIGHT * CANVAS_WIDTH_RATIO / CANVAS_HEIGHT_RATIO);
 
 const DRAWING_TO_CANVAS_RATIO = 1 - (2 * BORDER_WIDTH_RATIO);
+
+const DONWLOAD_PRINT_DIMENSION = 4000;
 
 // random numbers
 function randomUnit() {
@@ -593,3 +631,11 @@ function chooseByProbability(list) {
 const downloadIndexParam = new URLSearchParams(window.location.search).get('downloadIndex') != null // TODO remove for release
   ? parseInt(new URLSearchParams(window.location.search).get('downloadIndex') ?? 0, 10)
   : undefined;
+
+// misc
+
+function toClosestTenth(input) {
+  return Math.round(10 * input) / 10;
+}
+
+const getFileName = () => `resoriso-${PALETTE.name}-${originalSeed}-${downloadIndexParam}-${COORDINATE_SYSTEM}-${LAYER_MISREGISTRATION}-${TILE_ZOOM_RATIO}-${LAYER_WIDTH_DISTRIBUTION}-${LAYER_COLOR_DISTRIBUTION}-${RANGE_COUNT}.png`
