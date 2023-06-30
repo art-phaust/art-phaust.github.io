@@ -75,7 +75,6 @@ const PALETTES = [
     name: 'Duo C',
     background: [[32, 25, 88]],
     colors: [[324, 91, 75], [202, 100, 37]],
-    colors: [[324, 91, 75], [202, 100, 37]],
   },
   {
     name: 'Mono Black',
@@ -148,7 +147,7 @@ const BORDER_WIDTH_RATIO = 0.085; // ratio of the canvas width, note that 0.085 
 const BORDER_EXCLUDE = false; // whether to prohibit rendering dots in the border area
 const BORDER_OVERLAY = true; // whether we redraw the border over whatever is in the border area at the end of each frame
 
-const DOT_DENSITY = dotDensity || 400; // number of dots (on the x axis)
+const DOT_DENSITY = dotDensity || 600; // number of dots (on the x axis)
 const DOT_SIZE = 1 / Math.sqrt(2) * (exportLayers === 'flat' ? 1.1 : 1); // the distance from the center of the dot to a corner - do not change
 const DOT_SIZE_NOISE_DENSITY = 0.025; // the density of the Perlin noise that distorts the corners of the dots
 const DOT_SIZE_NOISE_MAGNITUDE = exportLayers === 'flat' ? 0 : 0.25; // the magnitude of the Perlin noise that distorts the corners of the dots
@@ -173,12 +172,17 @@ const RANGE_COUNT = chooseFromList([
   4, 6, // low
   12, 16, // med
   24, 32, // high
-  128, // v high
+  64, 128, // v high
 ]) + ((IS_MONOCHROME && randomUnit() < 0.5) ? 1 : 0) // to get different behaviour at end of ranges for IS_MONOCHROME
 
 // TODO I'm mixing terminology of "layer" and "range"
 const LAYER_ROTATIONAL_OFFSET_CENTER_MAX_DISTANCE = 0.1; // the maximum offset of the center of rotation of the layer from the center of the canvas (as a ratio of the width of the drawing)
-const LAYER_MISREGISTRATION = IS_MONOCHROME ? 'NONE' : chooseFromList(['NONE', 'LOW', 'MEDIUM', 'HIGH']);
+const LAYER_MISREGISTRATION = IS_MONOCHROME ? 'NONE' : chooseByProbability([
+  { value: 'NONE', probability: 0.1 },
+  { value: 'LOW', probability: 0.3},
+  { value: 'MEDIUM', probability: 0.3 },
+  { value: 'HIGH', probability: 0.3 }
+]).value;
 const LAYER_ROTATIONAL_OFFSET_MAX = {
   NONE: 0,
   LOW: 1,
@@ -204,26 +208,23 @@ const LAYER_WIDTH_DISTRIBUTION_ALTERNATIVE_THICKNESS_FACTOR = 3;
 const LAYER_WIDTH_DISTRIBUTION_ONE_THICK_THICKNESS_FACTOR = 6;
 
 const LAYER_COLOR_RANGE_MIN = 0.2; // the minimum Chladni range for a layer - a smaller value gives narrower layers
-const LAYER_COLOR_DISTRIBUTION = IS_MONOCHROME ? 'SMART_SHUFFLE' : chooseFromList([
-  'SMART_SHUFFLE',
+const LAYER_COLOR_DISTRIBUTION = IS_MONOCHROME ? 'SMART_SHUFFLE' : chooseByProbability([
+  { value: 'SMART_SHUFFLE', probability: 0.49 },
 
-  'HSL_SORT_HUE',
-  'HSL_ROTATE_HUE',
-  'HSL_BOUNCE_HUE',
+  { value: 'HSL_SORT_HUE', probability: 0.17 },
+  { value: 'HSL_ROTATE_HUE', probability: 0.17 },
+  { value: 'HSL_BOUNCE_HUE', probability: 0.17 },
+]).value;
 
-  'HSL_SORT_LIGHTNESS',
-  'HSL_ROTATE_LIGHTNESS',
-  'HSL_BOUNCE_LIGHTNESS',
+const BLEND_MODE_MULTIPLY_FACTOR = 0.8
 
-  // 'DOMINANT'
-]);
-
-const COORDINATE_SYSTEM = chooseFromList(['CARTESIAN', 'POLAR']);
+const COORDINATE_SYSTEM = chooseByProbability([{ value: 'CARTESIAN', probability: 0.67 }, { value: 'POLAR', probability: 0.33 }]).value;
 const POLAR_CENTER_X = chooseFromList([-0.5, -0.25, 0, 0.25, 0.5, 0.75, 1, 1.25, 1.5]) // TODO remove
 const POLAR_CENTER_Y = chooseFromList([-0.5, -0.25, 0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]) // TODO remove
 
 let shapes;
 let layers;
+
 let offscreenCanvas;
 
 function setup() {
@@ -429,7 +430,7 @@ function setup() {
             randomGaussian(color[0], DOT_H_SD),
             randomGaussian(color[1], DOT_S_SD),
             randomGaussian(color[2], DOT_L_SD),
-            randomGaussian(color[3] ?? 70, DOT_ALPHA_SD),
+            randomGaussian(color[3] ?? 80, DOT_ALPHA_SD),
           ],
           vertexes: []
         }
@@ -482,7 +483,7 @@ function setup() {
 function draw() {
   drawImage(this, offscreenCanvas, CANVAS_WIDTH, CANVAS_HEIGHT, frameCount);
 
-  if (frameCount === 1) {
+  if (frameCount === Object.keys(layers).length) {
     if (exportLayers === 'mosaic' || exportLayers === 'flat') {
       for (const colorKey of Object.keys(layers)) {
         const shapes = layers[colorKey];
@@ -519,13 +520,31 @@ function draw() {
   }
 }
 
-function drawImage(canvas, offscreenCanvas, canvasWidth, canvasHeight) {
-  for (const frames of Object.values(layers).reverse()) {
-    for (const shape of frames) {
-      offscreenCanvas.fill(...shape.fill);
-      offscreenCanvas.beginShape();
-      for (const [x, y] of shape.vertexes) offscreenCanvas.vertex(x * canvasWidth, y * canvasWidth);
-      offscreenCanvas.endShape()
+function drawImage(canvas, offscreenCanvas, canvasWidth, canvasHeight, frameCountToDraw) {
+  canvas.background(...PALETTE.background);
+
+  const framesToDraw = (frameCountToDraw == null) ? Object.values(layers) : [layers[Object.keys(layers)[frameCountToDraw - 1]]]
+
+  if (BLEND_MODE_MULTIPLY_FACTOR > 0) {
+    offscreenCanvas.blendMode(MULTIPLY)
+    for (const frames of framesToDraw) {
+      for (const shape of frames) {
+        offscreenCanvas.fill(shape.fill[0], shape.fill[1], shape.fill[2], shape.fill[3] * BLEND_MODE_MULTIPLY_FACTOR);
+        offscreenCanvas.beginShape();
+        for (const [x, y] of shape.vertexes) offscreenCanvas.vertex(x * canvasWidth, y * canvasWidth);
+        offscreenCanvas.endShape()
+      }
+    }
+  } 
+  if (BLEND_MODE_MULTIPLY_FACTOR < 1) {
+    offscreenCanvas.blendMode(BLEND)
+    for (const frames of framesToDraw) {
+      for (const shape of frames) {
+        offscreenCanvas.fill(shape.fill[0], shape.fill[1], shape.fill[2], shape.fill[3] * (1 - BLEND_MODE_MULTIPLY_FACTOR));
+        offscreenCanvas.beginShape();
+        for (const [x, y] of shape.vertexes) offscreenCanvas.vertex(x * canvasWidth, y * canvasWidth);
+        offscreenCanvas.endShape()
+      }
     }
   }
 
@@ -638,4 +657,4 @@ function toClosestTenth(input) {
   return Math.round(10 * input) / 10;
 }
 
-const getFileName = () => `resoriso-${PALETTE.name}-${originalSeed}-${downloadIndexParam}-${COORDINATE_SYSTEM}-${LAYER_MISREGISTRATION}-${TILE_ZOOM_RATIO}-${LAYER_WIDTH_DISTRIBUTION}-${LAYER_COLOR_DISTRIBUTION}-${RANGE_COUNT}.png`
+const getFileName = () => `resoriso-${PALETTE.name}-${originalSeed}${downloadIndexParam != null ? `-${downloadIndexParam}` : ''}-${COORDINATE_SYSTEM}-${LAYER_MISREGISTRATION}-${TILE_ZOOM_RATIO}-${LAYER_WIDTH_DISTRIBUTION}-${LAYER_COLOR_DISTRIBUTION}-${RANGE_COUNT}.png`
