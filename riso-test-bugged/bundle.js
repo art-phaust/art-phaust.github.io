@@ -17,127 +17,146 @@ if (!seedParam) {
 const PALETTES = [
   {
     name: 'Breaking News',
+    probability: 0.06,
     background: [32, 25, 88],
     colors: [[0, 0, 0, 85], [0, 0, 0 , 65], [0, 0, 0 , 50], [241, 1, 54, 40]],
     accentColor: [18, 100, 59, 100],
   },
   {
     name: 'Spectrum',
+    probability: 0.06,
     background: [32, 25, 88],
     colors: [[354, 85, 63], [326, 100, 64], [183, 100, 32], [41, 100, 53], [18, 100, 59], [222, 53, 42]],
   },
   {
     name: 'Bubblegum Sun',
+    probability: 0.06,
     background: [32, 25, 88],
     colors: [[222, 53, 42], [41, 100, 53], [324, 91, 75]],
   },
   {
     name: 'Tokyo Nights',
+    probability: 0.06,
     background: [32, 25, 88],
     colors: [[0, 0, 0], [202, 100, 37], [193, 72, 63], [326, 100, 64]],
   },
   {
     name: 'Coral',
+    probability: 0.06,
     background: [32, 25, 88],
     colors: [[193, 72, 63], [202, 100, 37], [222, 53, 42], [358, 100, 78]],
   },
   {
     name: 'Kingfisher',
+    probability: 0.06,
     background: [32, 25, 88],
     colors: [[20, 54, 48], [183, 100, 27], [183, 100, 32], [357, 59, 88]],
   },
   {
     name: 'Ficus',
+    probability: 0.06,
     background: [32, 25, 88],
     colors: [[76, 19, 37], [36, 27, 55], [24, 64, 45], [210, 1, 54]],
   },
   {
     name: 'Rust',
+    probability: 0.06,
     background: [[32, 25, 88]],
     colors: [[20, 54, 48], [353, 49, 54], [36, 27, 55], [221, 38, 39]],
   },
   {
     name: 'Roller Disco',
+    probability: 0.06,
     background: [[32, 25, 88]],
     colors: [[178, 52, 68], [41, 100, 53], [326, 100, 64], [264, 49, 65]],
   },
   {
     name: 'Hyacinth',
+    probability: 0.03,
     background: [[32, 25, 88]],
     colors: [[261, 30, 51], [193, 72, 63]],
   },
   {
     name: 'Watermelon',
+    probability: 0.03,
     background: [[32, 25, 88]],
     colors: [[326, 100, 64], [183, 100, 27]],
   },
   {
     name: 'Flamingo',
+    probability: 0.03,
     background: [[32, 25, 88]],
     colors: [[324, 91, 75], [202, 100, 37]],
   },
   {
     name: 'Black',
+    probability: 0.03,
     background: [[32, 25, 88]],
     colors: [[0, 0, 0]],
   },
   {
     name: 'Blue',
+    probability: 0.03,
     background: [[32, 25, 88]],
     colors: [[222, 53, 42]],
   },
   {
     name: 'Sunflower',
+    probability: 0.03,
     background: [[32, 25, 88]],
     colors: [[41, 100, 53]],
   },
   {
     name: 'Natural Greyscale',
+    probability: 0.03,
     background:  [[32, 25, 88]],
     colors: [[0, 0, 0, 85], [0, 0, 0 , 65], [0, 0, 0 , 50], [241, 1, 54, 40]],
   },
   {
     name: 'Azure Greyscale',
+    probability: 0.03,
     background:  [[226, 27, 78]],
     colors: [[0, 0, 0, 85], [0, 0, 0 , 65], [0, 0, 0 , 50], [241, 1, 54, 40]],
   },
   {
     name: 'Candy Greyscale',
+    probability: 0.03,
     background:  [[357, 37, 79]],
     colors: [[0, 0, 0, 85], [0, 0, 0 , 65], [0, 0, 0 , 50], [357, 59, 88, 90]],
   },
   {
     name: 'Pistachio Greyscale',
+    probability: 0.03,
     background:  [[69, 19, 79]],
     colors: [[0, 0, 0, 85], [0, 0, 0 , 65], [0, 0, 0 , 50], [241, 1, 54, 40]],
   },
   {
     name: 'Citrine Greyscale',
+    probability: 0.03,
     background:  [[42, 85, 52]],
     colors: [[0, 0, 0, 85], [0, 0, 0 , 65], [0, 0, 0 , 50], [357, 59, 88, 60]],
   },
   {
     name: 'Adriatic Greyscale',
+    probability: 0.03,
     background:  [[221, 35, 42]],
     colors: [[0, 0, 0, 85], [0, 0, 0 , 65], [0, 0, 0 , 50], [357, 59, 88, 40]],
   },
   {
     name: 'Ocean',
+    probability: 0.03,
     background: [[223, 44, 85]],
     colors: [[202, 100, 37], [193, 72, 63], [221, 38, 39]],
   },
   {
-    name: 'Lilac Overprint',
-    background: [[282, 31, 70]],
-    colors: [[287, 48, 64], [264, 49, 65], [261, 30, 51]],
-  },
-  {
     name: 'Floss',
+    probability: 0.03,
     background: [[359, 48, 75]],
     colors: [[336, 53, 81], [353, 49, 54], [357, 59, 88]],
   },
   {
     name: 'Vase',
+    probability: 0.03,
     background: [[285, 20, 20]],
     colors: [[193, 72, 63, 50], [41, 100, 53, 50], [336, 53, 81, 50], [358, 100, 78, 50]],
   },
@@ -166,10 +185,10 @@ const ROTATION = randomUnit() < 0.33
   ? 0
   : chooseFromList([-81, -64, -49, -36, -25, -16, -9, 9, 16, 25, 36, 49, 64, 81]);
 
-const PALETTE = chooseFromList(PALETTES);
+const PALETTE = chooseByProbability(PALETTES);
 const IS_MONOCHROME = PALETTE.colors.length === 1;
 const RANGE_COUNT = chooseFromList([
-  4, 6, // low
+  4, 8, // low
   12, 16, // med
   24, 32, // high
   64, 128, // v high
@@ -218,7 +237,7 @@ const LAYER_COLOR_DISTRIBUTION = IS_MONOCHROME ? 'SMART_SHUFFLE' : chooseByProba
 
 const BLEND_MODE_MULTIPLY_FACTOR = 0.8
 
-const COORDINATE_SYSTEM = chooseByProbability([{ value: 'CARTESIAN', probability: 0.67 }, { value: 'POLAR', probability: 0.33 }]).value;
+const COORDINATE_SYSTEM = chooseByProbability([{ value: 'CARTESIAN', probability: 0.5 }, { value: 'POLAR', probability: 0.25 }, { value: 'POLAR_BUGGED', probability: 0.25 }]).value;
 const POLAR_CENTER_X = chooseFromList([-0.5, -0.25, 0, 0.25, 0.5, 0.75, 1, 1.25, 1.5]) // TODO remove
 const POLAR_CENTER_Y = chooseFromList([-0.5, -0.25, 0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]) // TODO remove
 
@@ -311,7 +330,7 @@ function setup() {
       ranges[i].range = [0, 1].map(v => -maxForColorRange + (i + v) * (2 * maxForColorRange) / ranges.length).map(toClosestTenth)
     }
   } else if (LAYER_WIDTH_DISTRIBUTION === 'ALTERNATE') {
-    const tranchesWidth = 2 * maxForColorRange / (LAYER_WIDTH_DISTRIBUTION_ALTERNATIVE_THICKNESS_FACTOR + 1) * (Math.floor(ranges.length / 2)) + (ranges.length % 2);
+    const tranchesWidth = 2 * maxForColorRange / ((LAYER_WIDTH_DISTRIBUTION_ALTERNATIVE_THICKNESS_FACTOR + 1) * (Math.floor(ranges.length / 2)) + (ranges.length % 2));
     for (let i = 0; i < ranges.length; i++) {
       const startsAt = Math.floor(i / 2) * (LAYER_WIDTH_DISTRIBUTION_ALTERNATIVE_THICKNESS_FACTOR + 1) + i % 2;
       ranges[i].range = [startsAt, startsAt + ((i % 2 === 0) ? 1 : LAYER_WIDTH_DISTRIBUTION_ALTERNATIVE_THICKNESS_FACTOR)].map(v => -maxForColorRange + v * tranchesWidth).map(toClosestTenth)
@@ -363,7 +382,7 @@ function setup() {
       const polarDistance = Math.sqrt((x - xPolarCenter)**2 + (y - yPolarCenter)**2);
 
       x = polarDistance / (0.5 * TILE_ZOOM_RATIO);
-      y = ((polarTheta - Math.PI) / Math.PI);
+      y = ((polarTheta - Math.PI) / (Math.PI * (COORDINATE_SYSTEM === 'POLAR_BUGGED' ? 0.75 : 1)));
     }
 
     return (
