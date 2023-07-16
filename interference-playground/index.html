@@ -2,6 +2,8 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interference Playground | Phaust</title>	
+    <link rel="icon" type="image/png" href="favicon.png">
     <script src="p5.js"></script>
     <script>
       const sizeQueryParam = parseInt(new URLSearchParams(window.location.search).get('size') ?? 0, 10);
@@ -33,7 +35,7 @@
       }
       .outer {
         display: flex;
-        width: 90%;
+        width: 92%;
         max-width: 1400px;
         min-height: 92vh;
         margin-left: auto;
@@ -42,7 +44,7 @@
         flex-wrap: wrap;
       }
       .col1 {
-        width: 49%;
+        width: 50.5%;
         box-sizing: border-box;
         margin-bottom: 24px;
         padding-right: 12px;
@@ -51,7 +53,7 @@
       .col2 {
         width: 47%;
         box-sizing: border-box;
-        margin-left: 3%;
+        margin-left: 2%;
         margin-bottom: 24px;
       }
 
@@ -118,8 +120,6 @@
         opacity: 1;
       }
 
-      #randomButton { display: none; }
-
       @media (hover: hover) {
         button:hover {
           background: #FFB511;
@@ -153,10 +153,10 @@
     <div class="outer">
       <div class="col1">
         <h1>Interference Playground</h1>
-        <p>Release: Thursday July 20th at 17:00 UTC / 13:00 EDT on Tonic.</p>
-        <p>In Interference, Phaust foregrounds two scientific discoveries in a search for purity of generative systems — an 18th century German physicist and a 20th century Japanese electronics corporation. <a href="https://tonic.xyz/collection/interference/" target="_blank">Learn more at Tonic.</a></p>
-        <p>In the spirit of experimentation that drove Chladni, this playground is an opportunity to explore the algorithm ahead of the release. You can explore random outputs or lock specific traits. The final code for Interference will be stored on the Ethereum blockchain.</p>
-        <p>Note: this playground performs best on Firefox.</p>
+        <p>Release: <a href="https://tonic.xyz/collection/interference/" target="_blank">Thursday July 20th at 17:00 UTC on Tonic.</a></p>
+        <p>In Interference, Phaust foregrounds two scientific discoveries in a search for purity of generative systems — an 18th century German physicist and a 20th century Japanese electronics corporation.</p>
+        <p>In the spirit of experimentation that drove Chladni, this playground is an opportunity to explore the algorithm ahead of release. You can explore random outputs or lock specific traits. Interference's final code will be stored on the Ethereum blockchain.</p>
+        <p>Note: this performs best on Firefox or Safari.</p>
        <br>
         <form>
           <div class="traitSelector">
@@ -178,12 +178,12 @@
                 <option value="12">Black</option>
                 <option value="13">Blue</option>
                 <option value="14">Sunflower</option>
-                <option value="15">Natural Greyscale</option>
-                <option value="16">Azure Greyscale</option>
-                <option value="17">Candy Greyscale</option>
-                <option value="18">Pistachio Greyscale</option>
-                <option value="19">Citrine Greyscale</option>
-                <option value="20">Adriatic Greyscale</option>
+                <option value="15">Newspaper</option>
+                <option value="16">Cloud</option>
+                <option value="17">Cinder</option>
+                <option value="18">Pewter</option>
+                <option value="19">Ash</option>
+                <option value="20">Shale</option>
                 <option value="21">Ocean</option>
                 <option value="22">Floss</option>
                 <option value="23">Vase</option>
@@ -238,8 +238,7 @@
             </select>
           </div>
         </form>
-        <br>
-        <button id="traitButton">Generate output</button><button id="randomButton">Generate random output</button>
+        <button id="traitButton">Generate output</button><button id="saveButton" style="margin-left: 1rem; display:none" disabled>Save</button>
       </div>
       <div class="col2">
         <div class="sketchContainer">
@@ -288,12 +287,28 @@
         // Get the label associated with the select element
         const label = event.target.previousElementSibling.htmlFor;
 
-        dropdownValues[label] = parseInt(selectedOption, 10);
+        const dropdownValue = parseInt(selectedOption, 10);
+
+        dropdownValues[label] = dropdownValue;
+
+        if (label === 'ink' && dropdownValue >= 12 && dropdownValue <= 14) {
+          const misregistrationSelect = document.getElementById('misregistration');
+          misregistrationSelect.disabled = true;
+          misregistrationSelect.value = 0;
+          dropdownValues['misregistration'] = 0;
+          const colouringSelect = document.getElementById('colouring');
+          colouringSelect.disabled = true;
+          colouringSelect.value = 0;
+          dropdownValues['colouring'] = 0;
+        } else {
+          document.getElementById('misregistration').disabled = false;
+          document.getElementById('colouring').disabled = false;
+        }
       });
     });
   </script>
 
 
-  <script src="riso-1.8.6-playground-0.js"></script>
+  <script src="riso-1.8.6-playground.js"></script>
 
 </html>

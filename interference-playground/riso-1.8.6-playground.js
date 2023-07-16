@@ -560,8 +560,10 @@ draw = () => {
     // }
 
     // PLAYGROUND
-    document.getElementById('traitButton').textContent = 'Generate output';
     document.getElementById('traitButton').disabled = false;
+    document.getElementById('traitButton').textContent = 'Generate output';
+    document.getElementById('saveButton').disabled = false;
+    document.getElementById('saveButton').textContent = 'Save';
   }
 }
 
@@ -789,12 +791,12 @@ const PALETTE_NAMES = [
   'Black', // 12
   'Blue', // 13
   'Sunflower', // 14
-  'Natural Greyscale', // 15
-  'Azure Greyscale', // 16
-  'Candy Greyscale', // 17
-  'Pistachio Greyscale', // 18
-  'Citrine Greyscale', // 19
-  'Adriatic Greyscale', // 20
+  'Newspaper', // 15
+  'Cloud', // 16
+  'Cinder', // 17
+  'Pewter', // 18
+  'Ash', // 19
+  'Shale', // 20
   'Ocean', // 21
   'Floss', // 22
   'Vase', // 23
@@ -844,6 +846,10 @@ function getFeatures() {
 document.getElementById('traitButton').addEventListener('click', function() {
   document.getElementById('traitButton').disabled = true;
   document.getElementById('traitButton').textContent = 'Calculating...';
+  document.getElementById('saveButton').style.display = 'inline-block';
+  document.getElementById('saveButton').disabled = true;
+  document.getElementById('saveButton').textContent = '...';
+
   document.getElementById('trait-ink').textContent = '...';
   document.getElementById('trait-colouring').textContent = '...';
   document.getElementById('trait-coordinates').textContent = '...';
@@ -919,5 +925,38 @@ document.getElementById('traitButton').addEventListener('click', function() {
     setTimeout(() => {
       loop();
     }, 250);
+  }, 250);
+});
+
+document.getElementById('saveButton').addEventListener('click', function() {
+  document.getElementById('traitButton').disabled = true;
+  document.getElementById('traitButton').textContent = '...';
+  document.getElementById('saveButton').disabled = true;
+  document.getElementById('saveButton').textContent = 'Saving...';
+
+  setTimeout(() => {
+    const DOWNLOAD_DIMENSION = 1000; // ??
+    const downloadWidth = DOWNLOAD_DIMENSION / CANVAS_HEIGHT_RATIO;
+    const downloadHeight = DOWNLOAD_DIMENSION;
+
+    const downloadContext = createGraphics(downloadWidth, downloadHeight);
+    downloadContext.colorMode(HSL);
+    downloadContext.pixelDensity(1);
+    downloadContext.noStroke();
+    downloadContext.background(...palette.paper);
+  
+    const downloadOffscreenContext = createGraphics(downloadWidth, downloadHeight);
+    downloadOffscreenContext.colorMode(HSL);
+    downloadOffscreenContext.pixelDensity(1);
+    downloadOffscreenContext.noStroke();
+  
+    drawImage(downloadContext, downloadOffscreenContext, downloadWidth, downloadHeight);
+  
+    downloadContext.save(`interference-preview-${Date.now()}.png`);
+
+    document.getElementById('traitButton').disabled = false;
+    document.getElementById('traitButton').textContent = 'Generate output';
+    document.getElementById('saveButton').disabled = false;
+    document.getElementById('saveButton').textContent = 'Save';
   }, 250);
 });
